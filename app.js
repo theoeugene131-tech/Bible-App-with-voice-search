@@ -85,8 +85,15 @@ async function loadBible(){
 function chapterNumbers(book){return (bible.get(book)?.chapters||[]).map((c,i)=>c.chapter||i+1)}
 function chapterCount(book){return Math.max(0,...chapterNumbers(book))}
 function getChapterData(book,number){const chapters=bible.get(book)?.chapters||[];return chapters.find((c,i)=>(c.chapter||i+1)===number)||null}
+function updateVerseActions(){
+ const ready=!!currentVerse;
+ $("copyVerseBtn").disabled=!ready;
+ $("shareVerseBtn").disabled=!ready;
+ $("verseActionHint").textContent=ready?"Selected: "+currentVerse.reference:"Tap a verse, then copy or share it.";
+}
 function renderChapter(){
  currentVerse=null;
+ updateVerseActions();
  const data=bible.get(currentBook); if(!data)return;
  const chapters=data.chapters||[]; const numbers=chapterNumbers(currentBook); if(!numbers.length)return;
  if(!numbers.includes(currentChapter))currentChapter=numbers[0];
@@ -100,7 +107,7 @@ function renderChapter(){
   const num=document.createElement("sup");num.textContent=i+1;
   const span=document.createElement("span");span.textContent=v.text||v;
   p.append(num,span);
-  p.addEventListener("click",()=>{document.querySelectorAll(".verse-line.selected").forEach(x=>x.classList.remove("selected"));p.classList.add("selected");currentVerse={reference:currentBook+" "+currentChapter+":"+(v.number||i+1),text:v.text||v};setStatus("Selected "+currentVerse.reference+". Tap Read selected verse to listen.");});
+  p.addEventListener("click",()=>{document.querySelectorAll(".verse-line.selected").forEach(x=>x.classList.remove("selected"));p.classList.add("selected");currentVerse={reference:currentBook+" "+currentChapter+":"+(v.number||i+1),text:v.text||v};updateVerseActions();setStatus("Selected "+currentVerse.reference+". You can now copy, share, or read it aloud.");});
   $("chapterText").append(p);
  });
  $("prevBtn").disabled=currentBook==="Genesis"&&currentChapter===1;
@@ -144,7 +151,7 @@ function showSearchResults(items,title){
   const b=document.createElement("button");b.className="result-item";
   const strong=document.createElement("strong");strong.textContent=item.book+" "+item.chapter+":"+item.verse;
   const text=document.createElement("span");text.textContent=item.text;
-  b.append(strong,text);b.onclick=()=>{currentBook=item.book;currentChapter=item.chapter;renderChapter();currentVerse={reference:strong.textContent,text:item.text};$("reference").textContent=currentVerse.reference;document.querySelectorAll(".verse-line").forEach((p,i)=>{if(i+1===item.verse)p.classList.add("selected")});$("chapterText").scrollIntoView({behavior:"smooth",block:"start"});};
+  b.append(strong,text);b.onclick=()=>{currentBook=item.book;currentChapter=item.chapter;renderChapter();currentVerse={reference:strong.textContent,text:item.text};updateVerseActions();$("reference").textContent=currentVerse.reference;document.querySelectorAll(".verse-line").forEach((p,i)=>{if(i+1===item.verse)p.classList.add("selected")});$("chapterText").scrollIntoView({behavior:"smooth",block:"start"});};
   wrap.append(b);
  });
 }
@@ -163,7 +170,7 @@ function search(q){
  if(ref){
   if(!bible.has(ref.book)||ref.chapter<1||ref.chapter>chapterCount(ref.book)){setStatus("That chapter could not be found.");return;}
   currentBook=ref.book;currentChapter=ref.chapter;renderChapter();
-  if(ref.verse){const verse=allVerses.find(v=>v.book===ref.book&&v.chapter===ref.chapter&&v.verse===ref.verse);if(verse){currentVerse={reference:ref.book+" "+ref.chapter+":"+ref.verse,text:verse.text};$("reference").textContent=currentVerse.reference;document.querySelectorAll(".verse-line").forEach((p,i)=>{if(i+1===ref.verse)p.classList.add("selected")});}}
+  if(ref.verse){const verse=allVerses.find(v=>v.book===ref.book&&v.chapter===ref.chapter&&v.verse===ref.verse);if(verse){currentVerse={reference:ref.book+" "+ref.chapter+":"+ref.verse,text:verse.text};updateVerseActions();$("reference").textContent=currentVerse.reference;document.querySelectorAll(".verse-line").forEach((p,i)=>{if(i+1===ref.verse)p.classList.add("selected")});}}
   $("results").innerHTML="";setStatus("Opened "+ref.book+" "+ref.chapter+".");return;
  }
  const hits=keywordSearch(q);showSearchResults(hits,"Search results");setStatus(hits.length?"Found verses containing your search words.":"No matches found. Try different words.");
@@ -240,6 +247,29 @@ function speak(text){
 }
 $("readBtn").onclick=()=>{const verses=getChapterData(currentBook,currentChapter)?.verses||[];if(!verses.length){setStatus("This chapter is not loaded yet. Please wait and try again.");return;}speak(currentBook+" chapter "+currentChapter+". "+verses.map((v,i)=>(v.number||i+1)+". "+(v.text||v)).join(" "))};
 $("readVerseBtn").onclick=()=>{if(!currentVerse){setStatus("Tap a verse in the Bible text first, then choose Read selected verse.");return;}speak(currentVerse.reference+". "+currentVerse.text)};
+$("copyVerseBtn").onclick=async()=>{
+ if(!currentVerse)return;
+ const text=currentVerse.reference+" (KJV)\n"+currentVerse.text;
+ try{
+  if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text);
+  else{const field=document.createElement("textarea");field.value=text;field.style.position="fixed";field.style.opacity="0";document.body.append(field);field.select();const copied=document.execCommand("copy");field.remove();if(!copied)throw new Error("Copy unavailable");}
+  $("verseActionHint").textContent=currentVerse.reference+" copied. Paste it anywhere.";
+ }catch(error){$("verseActionHint").textContent="Copy is unavailable in this browser. Try Share verse instead.";console.warn("Verse copy failed:",error);}
+};
+$("shareVerseBtn").onclick=async()=>{
+ if(!currentVerse)return;
+ const title=currentVerse.reference+" — King James Version";
+ const text=currentVerse.reference+" (KJV)\n"+currentVerse.text;
+ if(navigator.share){
+  try{await navigator.share({title,text});$("verseActionHint").textContent="Share options opened for "+currentVerse.reference+".";return;}
+  catch(error){if(error&&error.name==="AbortError"){$("verseActionHint").textContent="Sharing cancelled.";return;}console.warn("Verse sharing failed:",error);}
+ }
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);$("verseActionHint").textContent="Sharing is not supported here. Verse copied; paste it into WhatsApp or another app.";return;}}
+ catch(error){console.warn("Verse copy fallback failed:",error);}
+ const blob=new Blob([text],{type:"text/plain;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=currentVerse.reference.replace(/[^a-z0-9]+/gi,"-")+".txt";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);
+ $("verseActionHint").textContent="Verse saved as a text file. Attach it to a message to share.";
+};
+
 $("voiceSelect").addEventListener("change",()=>{
  if("speechSynthesis" in window)window.speechSynthesis.cancel();
  speechRunId++;speechPaused=false;speechChunks=[];speechChunkIndex=0;
