@@ -9,13 +9,27 @@ let allVerses = [];
 const normal = s => String(s||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
 function setStatus(s){$("status").textContent=s}
 async function fetchBook(name,osis){
+  const url=DATA_URL+osis+".json";
   let lastError;
+  // Use the saved Bible file first so previously downloaded books open without data.
+  try{
+    if("caches" in window){
+      const saved=await caches.match(url);
+      if(saved){
+        const data=await saved.clone().json();
+        if(Array.isArray(data.chapters)){bible.set(name,data);return true;}
+      }
+    }
+  }catch(error){console.warn("Could not read cached Bible book:",name,error);}
   for(let attempt=0;attempt<2;attempt++){
     try{
-      const response=await fetch(DATA_URL+osis+".json");
+      const response=await fetch(url);
       if(!response.ok) throw new Error("HTTP "+response.status+" for "+name);
-      const data=await response.json();
+      const data=await response.clone().json();
       if(!Array.isArray(data.chapters)) throw new Error("Unexpected Bible data for "+name);
+      if("caches" in window){
+        try{const cache=await caches.open("voice-bible-kjv-data-v1");await cache.put(url,response.clone());}catch(cacheError){console.warn("Bible cache could not be saved:",cacheError);}
+      }
       bible.set(name,data);
       return true;
     }catch(error){lastError=error;}
@@ -61,11 +75,11 @@ async function loadBible(){
   renderBookmarks();
   if(failed.length){
     const names=failed.map(x=>x[0]).join(", ");
-    setStatus("Loaded "+loaded+" of 66 books. Some books could not load: "+names+". Check your connection and refresh to retry.");
-    if(homeStatus)homeStatus.textContent="Loaded "+loaded+" of 66 books. A few books need an internet retry.";
+    setStatus("Loaded "+loaded+" of 66 books. "+(navigator.onLine?"Some books need an internet retry: "+names+".":"You are offline; connect once to download the remaining books."));
+    if(homeStatus)homeStatus.textContent="Loaded "+loaded+" of 66 books. "+(navigator.onLine?"Some books still need downloading.":"Connect to the internet once to save the remaining books for offline reading.");
   }else{
-    setStatus("Bible loaded — all 66 books are ready.");
-    if(homeStatus)homeStatus.textContent="All 66 books of the King James Bible are ready.";
+    setStatus("All 66 KJV books are downloaded and ready for offline reading.");
+    if(homeStatus)homeStatus.textContent="All 66 books are saved on this device for offline reading.";
   }
 }
 function chapterNumbers(book){return (bible.get(book)?.chapters||[]).map((c,i)=>c.chapter||i+1)}
@@ -271,3 +285,7 @@ $("clearNotesBtn").onclick=()=>{
 };
 buildContents();
 loadBible();
+
+// Keep the user informed when the phone changes between online and offline.
+window.addEventListener("offline",()=>{setStatus("You are offline. Downloaded Bible books remain available.");});
+window.addEventListener("online",()=>{setStatus("Internet connection restored. Checking Bible downloads…");});
