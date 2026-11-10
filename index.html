@@ -23,6 +23,24 @@
       <p class="eyebrow">WELCOME</p>
       <h1 id="contentsTitle">The Word of God</h1>
       <p class="intro-copy">Read the King James Version, find passages by speaking or typing, and listen to Scripture with a female or male reading voice. Choose any book below to begin.</p>
+      <section class="home-tools" aria-label="Search and sermon notes">
+        <div class="home-tool-card home-search-card">
+          <p class="eyebrow">SEARCH WITHOUT OPENING A BOOK</p>
+          <h2>Voice Bible Search</h2>
+          <p>Speak a reference like “John chapter three verse sixteen” or type a topic.</p>
+          <button id="homeMicBtn" class="home-mic" type="button" aria-label="Start voice Bible search">🎙 <span>Tap to search by voice</span></button>
+          <div class="search-row"><input id="homeQuery" aria-label="Search Bible from contents" placeholder="e.g. John 3:16 or faith"><button id="homeSearchBtn" type="button">Search</button></div>
+          <p id="homeSearchStatus" class="home-status" role="status" aria-live="polite">Voice search is ready.</p>
+        </div>
+        <div class="home-tool-card notes-card">
+          <p class="eyebrow">STUDY AND REFLECTION</p>
+          <h2>Sermon Notes</h2>
+          <p>Write your sermon notes or dictate them with your phone microphone. Notes are saved on this device.</p>
+          <textarea id="sermonNotes" rows="7" placeholder="Write your sermon notes here…"></textarea>
+          <div class="notes-actions"><button id="dictateNotesBtn" class="light-button" type="button">🎙 Dictate notes</button><button id="clearNotesBtn" class="text-action" type="button">Clear notes</button></div>
+          <p id="notesStatus" class="home-status" role="status" aria-live="polite">Notes save automatically on this device.</p>
+        </div>
+      </section>
       <div class="contents-heading"><h2>CONTENTS</h2><span>66 BOOKS</span></div>
       <div class="testament-label">OLD TESTAMENT</div>
       <div id="oldContents" class="contents-grid"></div>
