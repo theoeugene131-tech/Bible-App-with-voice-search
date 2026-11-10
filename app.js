@@ -150,6 +150,27 @@ $("bookmarkBtn").onclick=()=>{
  if(!bookmarks.some(x=>x.reference===reference)){bookmarks.unshift({reference});localStorage.setItem("voiceBibleBookmarks",JSON.stringify(bookmarks));renderBookmarks();$("bookmarkBtn").textContent="♥";}
  else setStatus("That passage is already bookmarked.");
 };
-const daily=[["Psalm 23:1","The LORD is my shepherd; I shall not want."],["Proverbs 3:5","Trust in the LORD with all thine heart; and lean not unto thine own understanding."],["Philippians 4:13","I can do all things through Christ which strengtheneth me."],["Isaiah 40:31","But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles."]];
-const today=Math.floor(Date.now()/86400000)%daily.length;$("dailyVerse").textContent="“"+daily[today][1]+"”";$("dailyRef").textContent=daily[today][0]+" · KJV";
+function showPage(page){
+  ["coverPage","contentsPage","readerPage"].forEach(id=>$(id).classList.add("hidden"));
+  $(page).classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"instant"});
+}
+function buildContents(){
+  BOOKS.forEach(([name],index)=>{
+    const button=document.createElement("button");
+    button.type="button";button.className="content-book";button.textContent=name;
+    button.addEventListener("click",()=>openBook(name));
+    (index<39?$("oldContents"):$("newContents")).append(button);
+  });
+}
+function openBook(name){
+  currentBook=name;currentChapter=1;currentVerse=null;
+  showPage("readerPage");
+  if(bible.has(name))renderChapter();
+}
+$("openBibleBtn").onclick=()=>showPage("contentsPage");
+$("backCoverBtn").onclick=()=>showPage("coverPage");
+$("startReadingBtn").onclick=()=>openBook("Genesis");
+$("contentsBackBtn").onclick=()=>showPage("contentsPage");
+buildContents();
 loadBible();
