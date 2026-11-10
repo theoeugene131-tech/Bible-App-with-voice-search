@@ -1,70 +1,75 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101b35">
-<meta name="description" content="Read the King James Bible, find Scripture by voice, and listen with male or female voices.">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css">
-<title>Bible App with Voice Search</title>
+<meta name="description" content="Holy Bible with voice search and voice reading. King James Version.">
+<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
+<title>Holy Bible — Voice Search and Voice Reading</title>
 </head>
 <body>
-<header>
-  <a class="brand" href="#" aria-label="Bible App">✦ Bible</a>
-  <span class="header-tag">KING JAMES VERSION</span>
-</header>
-<main>
-  <section class="voice-panel" aria-labelledby="voiceTitle">
-    <p class="eyebrow">VOICE SEARCH</p>
-    <h1 id="voiceTitle">Find a Bible passage</h1>
-    <p class="voice-intro">Speak a reference or say what you are looking for.</p>
-    <button id="micBtn" class="mic-button" type="button"><span class="mic-icon">🎙</span><span>Tap to speak</span></button>
-    <div class="search-row">
-      <input id="query" aria-label="Search Bible" placeholder="Or type: John 3:16">
-      <button id="searchBtn" type="button">Search</button>
+<main class="book-app">
+  <section id="coverPage" class="cover-page" aria-label="Holy Bible cover">
+    <div class="cover-frame">
+      <div class="cover-title">HOLY<br>BIBLE</div>
+      <div class="cover-subtitle">With voice search<br>and voice reading</div>
+      <button id="openBibleBtn" class="cover-open" type="button" aria-label="Open the Holy Bible"></button>
     </div>
-    <p id="status" role="status" aria-live="polite">Loading the King James Bible…</p>
-    <div id="results" class="results" aria-live="polite"></div>
   </section>
 
-  <section class="panel reader-panel" aria-labelledby="readerTitle">
-    <div class="section-heading">
-      <div><p class="eyebrow">SCRIPTURE READER</p><h2 id="reference">Genesis 1</h2></div>
-      <button id="bookmarkBtn" class="bookmark" type="button" aria-label="Bookmark passage">♡</button>
+  <section id="contentsPage" class="contents-page hidden" aria-labelledby="contentsTitle">
+    <header class="inside-header"><span>HOLY BIBLE</span><span>KING JAMES VERSION</span></header>
+    <div class="inside-content">
+      <p class="eyebrow">WELCOME</p>
+      <h1 id="contentsTitle">The Word of God</h1>
+      <p class="intro-copy">Read the King James Version, find passages by speaking or typing, and listen to Scripture with a female or male reading voice. Choose any book below to begin.</p>
+      <div class="contents-heading"><h2>CONTENTS</h2><span>66 BOOKS</span></div>
+      <div class="testament-label">OLD TESTAMENT</div>
+      <div id="oldContents" class="contents-grid"></div>
+      <div class="testament-label">NEW TESTAMENT</div>
+      <div id="newContents" class="contents-grid"></div>
+      <button id="startReadingBtn" class="primary-action start-reading" type="button">Start reading Genesis →</button>
+      <button id="backCoverBtn" class="text-action" type="button">← Back to cover</button>
     </div>
-    <div class="selectors">
-      <label>Book<select id="bookSelect" aria-label="Choose Bible book"></select></label>
-      <label>Chapter<select id="chapterSelect" aria-label="Choose chapter"></select></label>
-    </div>
-    <div class="chapter-tools">
-      <button id="prevBtn" class="light-button" type="button">← Previous</button>
-      <button id="nextBtn" class="light-button" type="button">Next →</button>
-    </div>
-    <div id="chapterText" class="scripture"><p>Preparing your Bible…</p></div>
   </section>
 
-  <section class="audio-panel" aria-labelledby="audioTitle">
-    <div><p class="eyebrow">LISTEN TO SCRIPTURE</p><h2 id="audioTitle">Bible audio</h2></div>
-    <label class="voice-choice">Narrator<select id="voiceSelect"><option value="female">Female voice</option><option value="male">Male voice</option></select></label>
-    <div class="audio-actions">
-      <button id="readBtn" class="primary-action" type="button">▶ Read chapter</button>
-      <button id="readVerseBtn" class="light-button" type="button">▶ Read selected verse</button>
-    </div>
-    <div class="playback-actions">
-      <button id="pauseBtn" class="light-button" type="button">Ⅱ Pause</button>
-      <button id="resumeBtn" class="light-button" type="button">▶ Resume</button>
-      <button id="stopBtn" class="light-button" type="button">■ Stop</button>
-    </div>
-    <p class="hint">Tap any verse to select it. Choose a narrator, then play the chapter or selected verse. Available voices depend on your phone.</p>
-  </section>
+  <section id="readerPage" class="reader-page hidden">
+    <header class="inside-header">
+      <button id="contentsBackBtn" class="header-back" type="button">‹ CONTENTS</button>
+      <span>KING JAMES VERSION</span>
+    </header>
+    <div class="reader-content">
+      <section class="voice-panel" aria-labelledby="voiceTitle">
+        <p class="eyebrow">VOICE SEARCH</p>
+        <h1 id="voiceTitle">Find a Bible passage</h1>
+        <p class="voice-intro">Speak a reference or say what you are looking for.</p>
+        <button id="micBtn" class="mic-button" type="button"><span class="mic-icon">🎙</span><span>Tap to speak</span></button>
+        <div class="search-row"><input id="query" aria-label="Search Bible" placeholder="Or type: John 3:16"><button id="searchBtn" type="button">Search</button></div>
+        <p id="status" role="status" aria-live="polite">Loading the King James Bible…</p>
+        <div id="results" class="results" aria-live="polite"></div>
+      </section>
 
-  <details class="panel bookmarks-panel">
-    <summary>My bookmarks</summary>
-    <div id="bookmarks" class="bookmark-list">No bookmarks saved yet.</div>
-  </details>
+      <section class="panel reader-panel" aria-labelledby="readerTitle">
+        <div class="section-heading"><div><p class="eyebrow">SCRIPTURE READER</p><h2 id="reference">Genesis 1</h2></div><button id="bookmarkBtn" class="bookmark" type="button" aria-label="Bookmark passage">♡</button></div>
+        <div class="selectors">
+          <label>Book<select id="bookSelect" aria-label="Choose Bible book"></select></label>
+          <label>Chapter<select id="chapterSelect" aria-label="Choose chapter"></select></label>
+        </div>
+        <div class="chapter-tools"><button id="prevBtn" class="light-button" type="button">← Previous</button><button id="nextBtn" class="light-button" type="button">Next →</button></div>
+        <div id="chapterText" class="scripture"><p>Preparing your Bible…</p></div>
+      </section>
+
+      <section class="audio-panel" aria-labelledby="audioTitle">
+        <p class="eyebrow">LISTEN TO SCRIPTURE</p><h2 id="audioTitle">Voice reading</h2>
+        <label class="voice-choice">Narrator<select id="voiceSelect"><option value="female">Female voice</option><option value="male">Male voice</option></select></label>
+        <div class="audio-actions"><button id="readBtn" class="primary-action" type="button">▶ Read chapter</button><button id="readVerseBtn" class="light-button" type="button">▶ Read selected verse</button></div>
+        <div class="playback-actions"><button id="pauseBtn" class="light-button" type="button">Ⅱ Pause</button><button id="resumeBtn" class="light-button" type="button">▶ Resume</button><button id="stopBtn" class="light-button" type="button">■ Stop</button></div>
+        <p class="hint">Tap any verse to select it. Choose a narrator, then play the chapter or selected verse. Available voices depend on your phone.</p>
+      </section>
+      <details class="panel bookmarks-panel"><summary>My bookmarks</summary><div id="bookmarks" class="bookmark-list">No bookmarks saved yet.</div></details>
+    </div>
+  </section>
 </main>
-<footer>KJV Bible text · An internet connection is required to load Scripture. Voice features depend on browser and device support.</footer>
+<footer>KJV Bible text · Internet connection required to load Scripture. Voice features depend on browser and device support.</footer>
 <script src="app.js"></script>
-</body>
-</html>
+</body></html>
