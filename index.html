@@ -2,25 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101b35"><meta name="description" content="Search and listen to the King James Bible using your voice.">
+<meta name="theme-color" content="#101b35"><meta name="description" content="Read the complete King James Bible, search by voice or text, and listen to Scripture.">
 <link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
 <title>Bible App with Voice Search</title>
 </head>
 <body>
-<header><div class="brand">✦ <span>Bible App</span></div><small>WITH VOICE SEARCH</small></header>
+<header><a class="brand" href="#" id="homeBtn">✦ Bible App</a><span class="header-tag">KING JAMES VERSION</span></header>
 <main>
-<section class="hero"><p class="eyebrow">THE WORD, WITH YOU</p><h1>Find a verse.<br><em>Hear its message.</em></h1><p>Search the King James Bible by speaking, typing a reference, or describing what you remember.</p></section>
-<section class="search panel">
-<label for="query">What would you like to find?</label>
-<div class="searchrow"><input id="query" placeholder='Try “John 3:16” or “God gives me hope”'><button id="searchBtn">Search</button></div>
-<button id="micBtn" class="mic">🎙 Search with my voice</button><p id="status" role="status">Ready when you are.</p>
-<div class="topics"><span>Explore:</span><button data-topic="hope">Hope</button><button data-topic="faith">Faith</button><button data-topic="peace">Peace</button><button data-topic="love">Love</button><button data-topic="fear">Fear</button></div>
+<section class="welcome"><p class="eyebrow">THE WORD, WITH YOU</p><h1>Read. Listen.<br><em>Find the Word.</em></h1><p>Your complete King James Bible, with voice search and audio reading.</p></section>
+<section class="panel search-panel">
+<h2>Find Scripture</h2>
+<label class="sr-only" for="query">Search Bible</label>
+<div class="search-row"><input id="query" placeholder='Try “John 3:16” or “love your neighbour”'><button id="searchBtn">Search</button></div>
+<button id="micBtn" class="voice-button">🎙 Search with your voice</button>
+<p id="status" role="status">Loading the complete King James Bible…</p>
+<div class="topics"><span>Popular topics</span><button data-query="faith">Faith</button><button data-query="hope">Hope</button><button data-query="love">Love</button><button data-query="peace">Peace</button><button data-query="forgiveness">Forgiveness</button><button data-query="fear">Fear</button></div>
+<div id="results" class="results" aria-live="polite"></div>
 </section>
-<section class="reader panel"><div class="readerhead"><div><p class="eyebrow">YOUR SCRIPTURE</p><h2 id="reference">Welcome</h2></div><button id="saveBtn" class="iconbtn" title="Save verse">♡</button></div>
-<p id="verse" class="verse">“Thy word is a lamp unto my feet, and a light unto my path.”</p><p id="translation" class="muted">Psalm 119:105 · King James Version</p>
-<div class="controls"><button id="readBtn">▶ Read aloud</button><label>Voice <select id="voice"><option value="female">Female</option><option value="male">Male</option></select></label><button id="stopBtn" class="secondary">Stop</button></div>
+<section class="panel reader-panel">
+<div class="section-heading"><div><p class="eyebrow">BIBLE READER</p><h2 id="reference">Genesis 1</h2></div><button id="bookmarkBtn" class="bookmark" aria-label="Bookmark chapter">♡</button></div>
+<div class="selectors">
+<label>Book<select id="bookSelect"></select></label>
+<label>Chapter<select id="chapterSelect"></select></label>
+</div>
+<div class="chapter-tools"><button id="prevBtn" class="light-button">← Previous</button><button id="nextBtn" class="light-button">Next →</button></div>
+<div id="chapterText" class="scripture"><p>Preparing your Bible…</p></div>
+<div class="audio-tools"><button id="readBtn">▶ Read chapter</button><label>Voice<select id="voiceSelect"><option value="female">Female</option><option value="male">Male</option></select></label><button id="stopBtn" class="light-button">Stop</button></div>
+<p class="hint">Voice options depend on the voices available on your phone.</p>
 </section>
-<section class="panel saved"><h2>Saved verses</h2><div id="savedList" class="muted">Your saved verses will appear here.</div></section>
-</main><footer>King James Version · Scripture lookup requires an internet connection</footer>
+<section class="panel">
+<div class="section-heading"><div><p class="eyebrow">YOUR LIBRARY</p><h2>Bookmarks</h2></div></div>
+<div id="bookmarks" class="bookmark-list">No bookmarks saved yet.</div>
+</section>
+<section class="panel daily-panel"><p class="eyebrow">A MOMENT IN THE WORD</p><h2>Daily verse</h2><blockquote id="dailyVerse">“Thy word is a lamp unto my feet, and a light unto my path.”</blockquote><p id="dailyRef">Psalm 119:105 · KJV</p></section>
+</main>
+<footer>King James Version (1769 text) · Bible text is loaded from a public-domain dataset. Internet connection is required to load Scripture.</footer>
 <script src="app.js"></script>
 </body></html>
