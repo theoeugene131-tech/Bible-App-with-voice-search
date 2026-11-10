@@ -5,6 +5,7 @@ A mobile-friendly Bible reader built around the King James Version (KJV).
 ## Features in this build
 - Browse all 66 books of the Bible and navigate chapter by chapter.
 - Search by Bible reference, such as John 3:16 or Psalm 23.
+- Recognise spoken references such as “Open John chapter three verse sixteen” and numbered books such as “First John”.
 - Search verse text by words or phrases.
 - Use the microphone for spoken references and spoken keyword searches where browser speech recognition is supported.
 - Read an entire chapter aloud using available device speech voices.
@@ -19,7 +20,7 @@ https://github.com/midvash/bible-data
 The KJV 1769 text is identified by that source as public domain. The app currently loads Scripture over the internet; the complete text is not bundled for offline use.
 
 ## Search limitations
-Voice recognition converts speech to text. Reference searches are resolved directly; other searches match words in Bible verses. This build does not yet use an AI model for semantic interpretation, so a description such as "the story about the man who built an ark" may not find the intended passage unless matching words are used.
+Voice recognition converts speech to text. Reference searches are resolved directly; other searches match words in Bible verses. This build does not yet use an AI model for semantic interpretation. It performs local keyword matching across the loaded KJV text; descriptions using different words from the passage may not find the intended result.
 
 ## Run locally
 Open `index.html` through a local web server or deploy the repository as a static site.
