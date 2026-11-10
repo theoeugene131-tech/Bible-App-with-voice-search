@@ -137,7 +137,10 @@ function speak(text){
  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=getVoice($("voiceSelect").value);if(v)u.voice=v;u.rate=.92;speechSynthesis.speak(u);
 }
 $("readBtn").onclick=()=>{const data=bible.get(currentBook);const verses=data?.chapters?.[currentChapter-1]?.verses||[];speak(currentBook+" chapter "+currentChapter+". "+verses.map((v,i)=>(i+1)+". "+(v.text||v)).join(" "))};
-$("stopBtn").onclick=()=>speechSynthesis.cancel();
+$("readVerseBtn").onclick=()=>{if(!currentVerse){setStatus("Tap a verse in the Bible text first, then choose Read selected verse.");return;}speak(currentVerse.reference+". "+currentVerse.text)};
+$("pauseBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.pause()};
+$("resumeBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.resume()};
+$("stopBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.cancel()};
 function renderBookmarks(){
  const box=$("bookmarks");box.innerHTML="";
  if(!bookmarks.length){box.textContent="No bookmarks saved yet.";return;}
