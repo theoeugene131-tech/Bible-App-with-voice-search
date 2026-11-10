@@ -1,4 +1,4 @@
-const CACHE_NAME = "voice-bible-shell-v4";
+const CACHE_NAME = "voice-bible-shell-v5";
 const SHELL_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES)).then(() => self.skipWaiting()));
