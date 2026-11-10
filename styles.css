@@ -55,3 +55,27 @@ footer{text-align:center;padding:16px 20px 24px;color:#777;font-size:11px;line-h
 .notes-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:9px}
 .notes-actions .text-action{margin:0}
 @media(min-width:680px){.home-tools{grid-template-columns:1fr 1fr}}
+
+
+/* Church presentation mode */
+.church-entry{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#101b35;color:#fff;border-radius:15px;padding:20px;margin:18px 0 26px}
+.church-entry h2{font:25px Georgia,serif;margin:2px 0 7px;color:#fff}.church-entry p:not(.eyebrow){font-size:13px;line-height:1.5;color:#d8deea;margin:0}
+.church-entry .eyebrow{color:#e0bd70}.church-entry button{flex-shrink:0}
+.church-page{min-height:100vh;background:var(--cream)}
+.church-workspace{max-width:1100px;margin:auto;padding:20px;display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:20px;align-items:start}
+.church-controls{background:#fff;border:1px solid var(--line);border-radius:15px;padding:19px}
+.church-controls h1{font:27px Georgia,serif;color:var(--navy);margin:0 0 9px}
+.church-controls>p:not(.eyebrow){font-size:13px;line-height:1.55;color:#626879}
+.church-control-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.church-control-row button{flex:1;min-width:90px}
+.projection-screen{min-height:68vh;background:#071126;color:#fff;border:7px solid #d4ad5b;border-radius:8px;padding:clamp(20px,4vw,48px);display:flex;flex-direction:column;justify-content:center;text-align:center;box-shadow:0 12px 35px #11182725}
+.projection-brand,.projection-footer{font:700 10px system-ui;letter-spacing:.2em;color:#dfbd73}
+.projection-reference{font-family:Georgia,serif}
+.projection-screen h2{font:clamp(26px,4vw,42px) Georgia,serif;color:#f0d38f;margin:20px 0}
+.projection-verses{font:30px/1.5 Georgia,serif;max-width:900px;margin:0 auto}
+.projection-verses p{margin:0 0 15px}.projection-verses strong{color:#e8c978;font-size:.7em}
+.projection-footer{margin-top:25px}
+.projection-screen.projection-light{background:#f8f2e5;color:#1b2740;border-color:#a77c2c}
+.projection-screen.projection-light h2{color:#77551b}.projection-screen.projection-light .projection-brand,.projection-screen.projection-light .projection-footer,.projection-screen.projection-light .projection-verses strong{color:#8a6424}
+.projection-screen:fullscreen{width:100vw;height:100vh;min-height:100vh;border:0;border-radius:0;padding:6vw;overflow:auto}
+@media(max-width:760px){.church-workspace{grid-template-columns:1fr;padding:12px}.projection-screen{min-height:48vh}.church-entry{align-items:stretch;flex-direction:column}.church-entry button{width:100%}.projection-verses{font-size:24px!important}}
