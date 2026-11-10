@@ -187,6 +187,10 @@ function getVoice(kind){
  return voices.find(v=>(kind==="female"?female:male).test(v.name))||voices.find(v=>v.lang.startsWith("en"))||null;
 }
 let speechRunId=0;
+let speechPaused=false;
+let speechChunks=[];
+let speechChunkIndex=0;
+let speechVoiceKind="female";
 function speak(text){
  if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){
   setStatus("Audio reading is not supported on this device. Try Chrome on Android.");return;
@@ -194,50 +198,77 @@ function speak(text){
  const synth=window.speechSynthesis;
  const runId=++speechRunId;
  synth.cancel();
- // Short chunks prevent Android browsers from cutting off long Bible chapters.
+ speechPaused=false;
+ speechVoiceKind=$("voiceSelect").value;
+ speechChunks=[];
+ speechChunkIndex=0;
+ // Keep each utterance short for better reliability on Android phones.
  const sentences=String(text).match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[String(text)];
- const chunks=[];let part="";
+ let part="";
  sentences.forEach(sentence=>{
-  const words=sentence.trim().split(/\s+/);
-  words.forEach(word=>{
-   if((part+" "+word).trim().length>180&&part){chunks.push(part.trim());part=word;}
+  sentence.trim().split(/\\s+/).forEach(word=>{
+   if((part+" "+word).trim().length>160&&part){speechChunks.push(part.trim());part=word;}
    else part=(part+" "+word).trim();
   });
-  if(part.length>0){chunks.push(part.trim());part="";}
+  if(part){speechChunks.push(part.trim());part="";}
  });
- let index=0;
- const selectedVoice=()=>{
-  const voices=synth.getVoices();
-  const kind=$("voiceSelect").value;
-  const pattern=kind==="female"?/female|woman|samantha|zira|karen|victoria|susan|aria|google.*uk.*english.*female/i:/male|man|david|daniel|george|mark|james|guy|google.*uk.*english.*male/i;
-  return voices.find(v=>pattern.test(v.name))||voices.find(v=>/^en/i.test(v.lang))||null;
- };
+ if(!speechChunks.length){setStatus("There is no text available to read.");return;}
+ setStatus("Starting voice reading…");
  const playNext=()=>{
-  if(runId!==speechRunId||index>=chunks.length){
-   if(runId===speechRunId)setStatus("Finished reading.");
-   return;
-  }
-  const utterance=new SpeechSynthesisUtterance(chunks[index++]);
-  const voice=selectedVoice();if(voice)utterance.voice=voice;
+  if(runId!==speechRunId||speechPaused)return;
+  if(speechChunkIndex>=speechChunks.length){setStatus("Finished reading.");return;}
+  const utterance=new SpeechSynthesisUtterance(speechChunks[speechChunkIndex]);
+  const voices=synth.getVoices();
+  const pattern=speechVoiceKind==="female"
+   ?/female|woman|samantha|zira|karen|victoria|susan|aria|google.*uk.*english.*female/i
+   :/male|man|david|daniel|george|mark|james|guy|google.*uk.*english.*male/i;
+  const voice=voices.find(v=>pattern.test(v.name))||voices.find(v=>/^en/i.test(v.lang))||null;
+  if(voice)utterance.voice=voice;
   utterance.rate=.9;utterance.pitch=1;
-  utterance.onstart=()=>{if(runId===speechRunId)setStatus("Reading aloud… ("+index+" of "+chunks.length+")");};
-  utterance.onend=()=>{if(runId===speechRunId)playNext();};
-  utterance.onerror=(event)=>{
+  const thisChunk=++speechChunkIndex;
+  utterance.onstart=()=>{if(runId===speechRunId)setStatus("Reading aloud… ("+thisChunk+" of "+speechChunks.length+")");};
+  utterance.onend=()=>{if(runId===speechRunId&&!speechPaused)playNext();};
+  utterance.onerror=event=>{
    if(runId!==speechRunId||event.error==="canceled"||event.error==="interrupted")return;
-   setStatus("Audio reading stopped. Tap Read chapter to try again, or choose another voice.");
+   setStatus("Audio reading stopped. Tap Read chapter to try again.");
   };
   synth.speak(utterance);
  };
- if(!chunks.length){setStatus("There is no text available to read.");return;}
- // Start after the current browser task; this improves reliability on mobile.
- window.setTimeout(()=>{if(runId===speechRunId)playNext();},150);
+ // Start immediately inside the button action; mobile browsers can reject delayed speech.
+ playNext();
 }
 $("readBtn").onclick=()=>{const verses=getChapterData(currentBook,currentChapter)?.verses||[];if(!verses.length){setStatus("This chapter is not loaded yet. Please wait and try again.");return;}speak(currentBook+" chapter "+currentChapter+". "+verses.map((v,i)=>(v.number||i+1)+". "+(v.text||v)).join(" "))};
 $("readVerseBtn").onclick=()=>{if(!currentVerse){setStatus("Tap a verse in the Bible text first, then choose Read selected verse.");return;}speak(currentVerse.reference+". "+currentVerse.text)};
-$("voiceSelect").addEventListener("change",()=>{if("speechSynthesis" in window)speechSynthesis.cancel();setStatus("Narrator set to "+$("voiceSelect").selectedOptions[0].text+".")});
-$("pauseBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.pause()};
-$("resumeBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.resume()};
-$("stopBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.cancel()};
+$("voiceSelect").addEventListener("change",()=>{
+ if("speechSynthesis" in window)window.speechSynthesis.cancel();
+ speechRunId++;speechPaused=false;speechChunks=[];speechChunkIndex=0;
+ setStatus("Narrator set to "+$("voiceSelect").selectedOptions[0].text+". Start reading again to use this voice.");
+});
+$("pauseBtn").onclick=()=>{
+ if(!("speechSynthesis" in window)){setStatus("Pause is not supported by this browser.");return;}
+ if(!speechChunks.length){setStatus("Start reading first, then tap Pause.");return;}
+ speechPaused=true;
+ window.speechSynthesis.pause();
+ setStatus("Reading paused. Tap Resume to continue.");
+};
+$("resumeBtn").onclick=()=>{
+ if(!("speechSynthesis" in window)){setStatus("Resume is not supported by this browser.");return;}
+ if(!speechChunks.length){setStatus("There is no reading to resume. Tap Read chapter or Read selected verse.");return;}
+ if(!speechPaused){setStatus("Reading is not paused.");return;}
+ speechPaused=false;
+ window.speechSynthesis.resume();
+ // If a chunk ended while paused, restart from the next unread chunk.
+ if(!window.speechSynthesis.speaking&&!window.speechSynthesis.pending){
+  const remaining=speechChunks.slice(speechChunkIndex).join(" ");
+  if(remaining)speak(remaining);
+  else setStatus("Finished reading.");
+ }else setStatus("Resuming voice reading…");
+};
+$("stopBtn").onclick=()=>{
+ if("speechSynthesis" in window)window.speechSynthesis.cancel();
+ speechRunId++;speechPaused=false;speechChunks=[];speechChunkIndex=0;
+ setStatus("Voice reading stopped.");
+};
 function renderBookmarks(){
  const box=$("bookmarks");box.innerHTML="";
  if(!bookmarks.length){box.textContent="No bookmarks saved yet.";return;}
