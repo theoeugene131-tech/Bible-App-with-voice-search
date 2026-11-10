@@ -42,7 +42,8 @@
           <p id="notesStatus" class="home-status" role="status" aria-live="polite">Notes save automatically on this device.</p>
         </div>
       </section>
-      <div class="contents-heading"><h2>CONTENTS</h2><span>66 BOOKS</span></div>
+<section class="church-entry"><div><p class="eyebrow">FOR CHURCH SERVICES</p><h2>Church Presentation</h2><p>Display Bible passages clearly on a church screen using your phone or laptop.</p></div><button id="churchModeBtn" class="primary-action" type="button">Open presentation mode →</button></section>
+            <div class="contents-heading"><h2>CONTENTS</h2><span>66 BOOKS</span></div>
       <div class="testament-label">OLD TESTAMENT</div>
       <div id="oldContents" class="contents-grid"></div>
       <div class="testament-label">NEW TESTAMENT</div>
@@ -86,6 +87,28 @@
         <p class="hint">Tap any verse to select it. Choose a narrator, then play the chapter or selected verse. Available voices depend on your phone.</p>
       </section>
       <details class="panel bookmarks-panel"><summary>My bookmarks</summary><div id="bookmarks" class="bookmark-list">No bookmarks saved yet.</div></details>
+    </div>
+  </section>
+
+  <section id="churchPage" class="church-page hidden" aria-label="Church presentation">
+    <header class="inside-header"><button id="churchBackBtn" class="header-back" type="button">‹ CONTENTS</button><span>CHURCH PRESENTATION</span></header>
+    <div class="church-workspace">
+      <section class="church-controls">
+        <p class="eyebrow">MULTIMEDIA OPERATOR</p><h1>Scripture presentation</h1>
+        <p>Choose a passage, then show it on the projector. On a phone, connect by HDMI or mirror your screen; on a laptop, connect the projector or TV.</p>
+        <div class="search-row"><input id="churchReference" placeholder="e.g. John 3:16" aria-label="Bible passage reference"><button id="churchGoBtn" type="button">Display</button></div>
+        <div class="church-control-row"><button id="churchMicBtn" class="light-button" type="button">🎙 Voice search</button><button id="churchPrevBtn" class="light-button" type="button">← Previous</button><button id="churchNextBtn" class="light-button" type="button">Next →</button></div>
+        <div class="church-control-row"><button id="churchSmallerBtn" class="light-button" type="button">A− Smaller</button><button id="churchLargerBtn" class="light-button" type="button">A+ Larger</button><button id="churchThemeBtn" class="light-button" type="button">Change background</button></div>
+        <div class="church-control-row"><button id="churchFullscreenBtn" class="primary-action" type="button">⛶ Projector full screen</button><button id="churchExitBtn" class="light-button" type="button">Exit full screen</button></div>
+        <p id="churchStatus" class="home-status" role="status">Ready. Enter a Bible reference to display Scripture.</p>
+        <p class="hint">This first version presents from the same phone or laptop. Connect that device to the projector or mirror its screen. Separate operator and projector devices can be added in a later upgrade.</p>
+      </section>
+      <section id="projectionScreen" class="projection-screen" aria-live="polite">
+        <div class="projection-brand">HOLY BIBLE · KING JAMES VERSION</div>
+        <h2 id="projectionReference">Welcome</h2>
+        <div id="projectionVerses" class="projection-verses">Your selected Scripture will appear here.</div>
+        <div class="projection-footer">CHURCH PRESENTATION</div>
+      </section>
     </div>
   </section>
 </main>
