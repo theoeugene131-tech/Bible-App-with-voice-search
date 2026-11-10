@@ -86,6 +86,7 @@ function chapterNumbers(book){return (bible.get(book)?.chapters||[]).map((c,i)=>
 function chapterCount(book){return Math.max(0,...chapterNumbers(book))}
 function getChapterData(book,number){const chapters=bible.get(book)?.chapters||[];return chapters.find((c,i)=>(c.chapter||i+1)===number)||null}
 function renderChapter(){
+ currentVerse=null;
  const data=bible.get(currentBook); if(!data)return;
  const chapters=data.chapters||[]; const numbers=chapterNumbers(currentBook); if(!numbers.length)return;
  if(!numbers.includes(currentChapter))currentChapter=numbers[0];
@@ -99,7 +100,7 @@ function renderChapter(){
   const num=document.createElement("sup");num.textContent=i+1;
   const span=document.createElement("span");span.textContent=v.text||v;
   p.append(num,span);
-  p.addEventListener("click",()=>{document.querySelectorAll(".verse-line.selected").forEach(x=>x.classList.remove("selected"));p.classList.add("selected");currentVerse={reference:currentBook+" "+currentChapter+":"+(i+1),text:v.text||v};});
+  p.addEventListener("click",()=>{document.querySelectorAll(".verse-line.selected").forEach(x=>x.classList.remove("selected"));p.classList.add("selected");currentVerse={reference:currentBook+" "+currentChapter+":"+(v.number||i+1),text:v.text||v};setStatus("Selected "+currentVerse.reference+". Tap Read selected verse to listen.");});
   $("chapterText").append(p);
  });
  $("prevBtn").disabled=currentBook==="Genesis"&&currentChapter===1;
