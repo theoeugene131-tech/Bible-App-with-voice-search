@@ -343,6 +343,40 @@ $("dictateNotesBtn").onclick=()=>{
   rec.onerror=()=>{$("notesStatus").textContent="Microphone unavailable. Allow microphone access in your browser."};
   rec.start();
 };
+$("shareNotesBtn").onclick=async()=>{
+  const notes=$("sermonNotes").value.trim();
+  if(!notes){$("notesStatus").textContent="Write or dictate some sermon notes before sharing.";return;}
+  const title="My Sermon Notes";
+  const shareText=title+"\\n\\n"+notes;
+  if(navigator.share){
+    try{
+      await navigator.share({title,text:shareText});
+      $("notesStatus").textContent="Share sheet opened. Choose WhatsApp, email, or another app.";
+      return;
+    }catch(error){
+      if(error&&error.name==="AbortError"){
+        $("notesStatus").textContent="Sharing cancelled. Your notes are still saved on this device.";
+        return;
+      }
+      console.warn("Native sharing failed:",error);
+    }
+  }
+  try{
+    if(navigator.clipboard&&window.isSecureContext){
+      await navigator.clipboard.writeText(shareText);
+      $("notesStatus").textContent="Notes copied. Paste them into WhatsApp, email, or another app.";
+      return;
+    }
+  }catch(error){console.warn("Clipboard sharing failed:",error);}
+  // Offline-friendly fallback: save a text file that can be attached to a message.
+  const blob=new Blob([shareText],{type:"text/plain;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;link.download="sermon-notes.txt";
+  document.body.append(link);link.click();link.remove();
+  URL.revokeObjectURL(url);
+  $("notesStatus").textContent="Sermon notes downloaded as a text file. Attach it to a message to share.";
+};
 $("clearNotesBtn").onclick=()=>{
   $("sermonNotes").value="";localStorage.removeItem(notesKey);
   $("notesStatus").textContent="Notes cleared from this device.";
