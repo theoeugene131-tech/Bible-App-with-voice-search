@@ -321,3 +321,68 @@ loadBible();
 // Keep the user informed when the phone changes between online and offline.
 window.addEventListener("offline",()=>{setStatus("You are offline. Downloaded Bible books remain available.");});
 window.addEventListener("online",()=>{setStatus("Internet connection restored. Checking Bible downloads…");});
+
+
+/* Church presentation mode: same-device phone/laptop projection */
+let presentationFont=30,presentationDark=true;
+function renderPresentation(){
+ const data=getChapterData(currentBook,currentChapter);
+ if(!data){$("churchStatus").textContent="This passage is not downloaded yet. Connect to the internet and try again.";return;}
+ $("projectionReference").textContent=currentBook+" "+currentChapter;
+ $("projectionVerses").innerHTML="";
+ (data.verses||[]).forEach((v,i)=>{
+  const line=document.createElement("p");
+  const number=document.createElement("strong");number.textContent=(v.number||i+1)+". ";
+  const words=document.createElement("span");words.textContent=v.text||v;
+  line.append(number,words);$("projectionVerses").append(line);
+ });
+ $("churchReference").value=currentBook+" "+currentChapter;
+ $("projectionVerses").style.fontSize=presentationFont+"px";
+ $("projectionScreen").classList.toggle("projection-light",!presentationDark);
+ $("churchStatus").textContent="Displaying "+currentBook+" "+currentChapter+".";
+}
+function displayChurchReference(value){
+ const ref=findReference(value);
+ if(!ref){$("churchStatus").textContent="I could not understand that reference. Try a format such as John 3:16.";return;}
+ if(!bible.has(ref.book)){ $("churchStatus").textContent=ref.book+" is still downloading. Please try again shortly.";return;}
+ const max=chapterCount(ref.book);
+ if(ref.chapter<1||ref.chapter>max){$("churchStatus").textContent="That chapter does not exist.";return;}
+ currentBook=ref.book;currentChapter=ref.chapter;currentVerse=null;
+ renderPresentation();
+ if(ref.verse){
+  const verseList=getChapterData(currentBook,currentChapter)?.verses||[];
+  const selected=verseList[ref.verse-1];
+  if(selected){
+   $("projectionVerses").innerHTML="";
+   const line=document.createElement("p");
+   const number=document.createElement("strong");number.textContent=ref.verse+". ";
+   const words=document.createElement("span");words.textContent=selected.text||selected;
+   line.append(number,words);$("projectionVerses").append(line);
+   $("projectionReference").textContent=currentBook+" "+currentChapter+":"+ref.verse+(ref.end&&ref.end!==ref.verse?"–"+ref.end:"");
+  }
+ }
+}
+$("churchModeBtn").onclick=()=>{showPage("churchPage");renderPresentation();};
+$("churchBackBtn").onclick=()=>showPage("contentsPage");
+$("churchGoBtn").onclick=()=>displayChurchReference($("churchReference").value);
+$("churchReference").addEventListener("keydown",e=>{if(e.key==="Enter")displayChurchReference($("churchReference").value);});
+$("churchPrevBtn").onclick=()=>{moveChapter(-1);renderPresentation();};
+$("churchNextBtn").onclick=()=>{moveChapter(1);renderPresentation();};
+$("churchSmallerBtn").onclick=()=>{presentationFont=Math.max(18,presentationFont-3);renderPresentation();};
+$("churchLargerBtn").onclick=()=>{presentationFont=Math.min(64,presentationFont+3);renderPresentation();};
+$("churchThemeBtn").onclick=()=>{presentationDark=!presentationDark;renderPresentation();};
+$("churchFullscreenBtn").onclick=async()=>{
+ const target=$("projectionScreen");
+ try{if(target.requestFullscreen)await target.requestFullscreen();else $("churchStatus").textContent="Full screen is not supported in this browser. You can still mirror the screen.";}
+ catch(error){$("churchStatus").textContent="Full screen was blocked. Use your browser menu or screen mirroring.";}
+};
+$("churchExitBtn").onclick=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});};
+$("churchMicBtn").onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$("churchStatus").textContent="Voice search is not supported here. Type the reference instead.";return;}
+ const rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.maxAlternatives=1;
+ $("churchStatus").textContent="Listening… say a passage such as John chapter three.";
+ rec.onresult=e=>{const spoken=e.results[0][0].transcript;$("churchReference").value=spoken;displayChurchReference(spoken);};
+ rec.onerror=()=>{$("churchStatus").textContent="Microphone unavailable. Allow microphone access or type the reference.";};
+ rec.start();
+};
