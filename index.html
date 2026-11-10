@@ -69,6 +69,14 @@
         <div id="results" class="results" aria-live="polite"></div>
       </section>
 
+      <section class="audio-panel" aria-labelledby="audioTitle">
+        <p class="eyebrow">LISTEN TO SCRIPTURE</p><h2 id="audioTitle">Voice reading</h2>
+        <label class="voice-choice">Narrator<select id="voiceSelect"><option value="female">Female voice</option><option value="male">Male voice</option></select></label>
+        <div class="audio-actions"><button id="readBtn" class="primary-action" type="button">▶ Read chapter</button><button id="readVerseBtn" class="light-button" type="button">▶ Read selected verse</button></div>
+        <div class="playback-actions"><button id="pauseBtn" class="light-button" type="button">Ⅱ Pause</button><button id="resumeBtn" class="light-button" type="button">▶ Resume</button><button id="stopBtn" class="light-button" type="button">■ Stop</button></div>
+        <p class="hint">Tap any verse to select it. Choose a narrator, then play the chapter or selected verse. Available voices depend on your phone.</p>
+      </section>
+
       <section class="panel reader-panel" aria-label="Bible reader">
         <div class="section-heading"><div><p class="eyebrow">SCRIPTURE READER</p><h2 id="reference">Genesis 1</h2></div><button id="bookmarkBtn" class="bookmark" type="button" aria-label="Bookmark passage">♡</button></div>
         <div class="selectors">
@@ -79,13 +87,6 @@
         <div id="chapterText" class="scripture"><p>Preparing your Bible…</p></div>
       </section>
 
-      <section class="audio-panel" aria-labelledby="audioTitle">
-        <p class="eyebrow">LISTEN TO SCRIPTURE</p><h2 id="audioTitle">Voice reading</h2>
-        <label class="voice-choice">Narrator<select id="voiceSelect"><option value="female">Female voice</option><option value="male">Male voice</option></select></label>
-        <div class="audio-actions"><button id="readBtn" class="primary-action" type="button">▶ Read chapter</button><button id="readVerseBtn" class="light-button" type="button">▶ Read selected verse</button></div>
-        <div class="playback-actions"><button id="pauseBtn" class="light-button" type="button">Ⅱ Pause</button><button id="resumeBtn" class="light-button" type="button">▶ Resume</button><button id="stopBtn" class="light-button" type="button">■ Stop</button></div>
-        <p class="hint">Tap any verse to select it. Choose a narrator, then play the chapter or selected verse. Available voices depend on your phone.</p>
-      </section>
       <details class="panel bookmarks-panel"><summary>My bookmarks</summary><div id="bookmarks" class="bookmark-list">No bookmarks saved yet.</div></details>
     </div>
   </section>
