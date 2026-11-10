@@ -351,14 +351,17 @@ function displayChurchReference(value){
  renderPresentation();
  if(ref.verse){
   const verseList=getChapterData(currentBook,currentChapter)?.verses||[];
-  const selected=verseList[ref.verse-1];
-  if(selected){
+  const last=Math.min(ref.end||ref.verse,verseList.length);
+  const selected=verseList.slice(ref.verse-1,last);
+  if(selected.length){
    $("projectionVerses").innerHTML="";
-   const line=document.createElement("p");
-   const number=document.createElement("strong");number.textContent=ref.verse+". ";
-   const words=document.createElement("span");words.textContent=selected.text||selected;
-   line.append(number,words);$("projectionVerses").append(line);
-   $("projectionReference").textContent=currentBook+" "+currentChapter+":"+ref.verse+(ref.end&&ref.end!==ref.verse?"–"+ref.end:"");
+   selected.forEach((verse,index)=>{
+    const line=document.createElement("p");
+    const number=document.createElement("strong");number.textContent=(ref.verse+index)+". ";
+    const words=document.createElement("span");words.textContent=verse.text||verse;
+    line.append(number,words);$("projectionVerses").append(line);
+   });
+   $("projectionReference").textContent=currentBook+" "+currentChapter+":"+ref.verse+(last>ref.verse?"–"+last:"");
   }
  }
 }
@@ -386,3 +389,9 @@ $("churchMicBtn").onclick=()=>{
  rec.onerror=()=>{$("churchStatus").textContent="Microphone unavailable. Allow microphone access or type the reference.";};
  rec.start();
 };
+
+document.addEventListener("keydown",event=>{
+ if(!document.fullscreenElement||$("churchPage").classList.contains("hidden"))return;
+ if(event.key==="ArrowRight"||event.key==="PageDown"){event.preventDefault();moveChapter(1);renderPresentation();}
+ if(event.key==="ArrowLeft"||event.key==="PageUp"){event.preventDefault();moveChapter(-1);renderPresentation();}
+});
