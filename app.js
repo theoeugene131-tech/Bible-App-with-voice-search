@@ -174,10 +174,21 @@ function getVoice(kind){
 }
 function speak(text){
  if(!("speechSynthesis" in window)){setStatus("Audio reading is not supported on this device.");return;}
- speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=getVoice($("voiceSelect").value);if(v)u.voice=v;u.rate=.92;speechSynthesis.speak(u);
+ const synth=window.speechSynthesis;
+ synth.cancel();
+ const utterance=new SpeechSynthesisUtterance(text);
+ const applyVoice=()=>{const selected=getVoice($("voiceSelect").value);if(selected)utterance.voice=selected;};
+ applyVoice();utterance.rate=.92;
+ utterance.onstart=()=>setStatus("Reading aloud…");
+ utterance.onend=()=>setStatus("Finished reading.");
+ utterance.onerror=()=>setStatus("Audio reading stopped. Try again or choose another voice.");
+ synth.speak(utterance);
+ // Some mobile browsers populate their voice list after the page loads.
+ if(!synth.getVoices().length){synth.onvoiceschanged=()=>{applyVoice();synth.onvoiceschanged=null;};}
 }
-$("readBtn").onclick=()=>{const data=bible.get(currentBook);const verses=data?.chapters?.[currentChapter-1]?.verses||[];speak(currentBook+" chapter "+currentChapter+". "+verses.map((v,i)=>(i+1)+". "+(v.text||v)).join(" "))};
+$("readBtn").onclick=()=>{const verses=getChapterData(currentBook,currentChapter)?.verses||[];if(!verses.length){setStatus("This chapter is not loaded yet. Please wait and try again.");return;}speak(currentBook+" chapter "+currentChapter+". "+verses.map((v,i)=>(v.number||i+1)+". "+(v.text||v)).join(" "))};
 $("readVerseBtn").onclick=()=>{if(!currentVerse){setStatus("Tap a verse in the Bible text first, then choose Read selected verse.");return;}speak(currentVerse.reference+". "+currentVerse.text)};
+$("voiceSelect").addEventListener("change",()=>{if("speechSynthesis" in window)speechSynthesis.cancel();setStatus("Narrator set to "+$("voiceSelect").selectedOptions[0].text+".")});
 $("pauseBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.pause()};
 $("resumeBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.resume()};
 $("stopBtn").onclick=()=>{if("speechSynthesis" in window)speechSynthesis.cancel()};
@@ -220,8 +231,8 @@ $("contentsBackBtn").onclick=()=>showPage("contentsPage");
 function runHomeSearch(query){
   if(!query.trim()){$("homeSearchStatus").textContent="Please speak or type a Bible reference or search topic.";return;}
   $("query").value=query;
-  search(query);
   showPage("readerPage");
+  search(query);
 }
 $("homeSearchBtn").onclick=()=>runHomeSearch($("homeQuery").value);
 $("homeQuery").addEventListener("keydown",e=>{if(e.key==="Enter")runHomeSearch($("homeQuery").value)});
