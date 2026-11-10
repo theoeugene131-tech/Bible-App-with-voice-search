@@ -8,36 +8,77 @@ let bookmarks = JSON.parse(localStorage.getItem("voiceBibleBookmarks") || "[]");
 let allVerses = [];
 const normal = s => String(s||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
 function setStatus(s){$("status").textContent=s}
-async function loadBible(){
-  setStatus("Loading all 66 books of the King James Bible…");
-  try{
-    let done=0;
-    await Promise.all(BOOKS.map(async ([name,osis])=>{
+async function fetchBook(name,osis){
+  let lastError;
+  for(let attempt=0;attempt<2;attempt++){
+    try{
       const response=await fetch(DATA_URL+osis+".json");
-      if(!response.ok) throw new Error("Could not load "+name);
-      const data=await response.json(); bible.set(name,data); done++;
-      setStatus("Loading Bible… "+done+" of 66 books");
-    }));
-    allVerses=[];
-    for(const [name] of BOOKS){
-      const data=bible.get(name);
-      (data.chapters||[]).forEach((chapter,ci)=>(chapter.verses||[]).forEach((v,vi)=>{
-        allVerses.push({book:name,chapter:ci+1,verse:vi+1,text:v.text||v});
-      }));
-    }
-    $("bookSelect").innerHTML=BOOKS.map(([n])=>'<option value="'+n+'">'+n+'</option>').join("");
-    $("bookSelect").value=currentBook;
-    renderChapter(); renderBookmarks(); setStatus("Bible loaded — all 66 books are ready.");
-  }catch(e){console.error(e);setStatus("The Bible could not load. Please check your internet connection and refresh the page.");}
+      if(!response.ok) throw new Error("HTTP "+response.status+" for "+name);
+      const data=await response.json();
+      if(!Array.isArray(data.chapters)) throw new Error("Unexpected Bible data for "+name);
+      bible.set(name,data);
+      return true;
+    }catch(error){lastError=error;}
+  }
+  console.warn("Could not load Bible book:",name,lastError);
+  return false;
 }
-function chapterCount(book){return (bible.get(book)?.chapters||[]).length}
+function rebuildVerseIndex(){
+  allVerses=[];
+  for(const [name] of BOOKS){
+    const data=bible.get(name);
+    if(!data) continue;
+    (data.chapters||[]).forEach((chapter,ci)=>(chapter.verses||[]).forEach((v,vi)=>{
+      allVerses.push({book:name,chapter:chapter.chapter||ci+1,verse:v.number||vi+1,text:v.text||v});
+    }));
+  }
+}
+async function loadBible(){
+  setStatus("Loading the King James Bible…");
+  const homeStatus=$("contentsBibleStatus");
+  if(homeStatus) homeStatus.textContent="Loading Bible text…";
+  $("bookSelect").innerHTML=BOOKS.map(([n])=>'<option value="'+n+'">'+n+'</option>').join("");
+  let loaded=0,failed=[];
+  // Load Genesis first so reading can begin without waiting for all 66 books.
+  const genesis=BOOKS[0];
+  if(await fetchBook(genesis[0],genesis[1])) loaded++;
+  else failed.push(genesis);
+  if(bible.has(currentBook)){renderChapter();renderBookmarks();}
+  setStatus("Bible loading… "+loaded+" of 66 books");
+  // Load the remaining books in small batches to reduce network bursts.
+  for(let start=1;start<BOOKS.length;start+=8){
+    const batch=BOOKS.slice(start,start+8);
+    const results=await Promise.all(batch.map(([name,osis])=>fetchBook(name,osis)));
+    results.forEach((ok,i)=>{if(ok)loaded++;else failed.push(batch[i]);});
+    setStatus("Bible loading… "+loaded+" of 66 books");
+    if(homeStatus) homeStatus.textContent="Bible loading… "+loaded+" of 66 books";
+    rebuildVerseIndex();
+    if(bible.has(currentBook))renderChapter();
+  }
+  rebuildVerseIndex();
+  $("bookSelect").value=currentBook;
+  if(bible.has(currentBook))renderChapter();
+  renderBookmarks();
+  if(failed.length){
+    const names=failed.map(x=>x[0]).join(", ");
+    setStatus("Loaded "+loaded+" of 66 books. Some books could not load: "+names+". Check your connection and refresh to retry.");
+    if(homeStatus)homeStatus.textContent="Loaded "+loaded+" of 66 books. A few books need an internet retry.";
+  }else{
+    setStatus("Bible loaded — all 66 books are ready.");
+    if(homeStatus)homeStatus.textContent="All 66 books of the King James Bible are ready.";
+  }
+}
+function chapterNumbers(book){return (bible.get(book)?.chapters||[]).map((c,i)=>c.chapter||i+1)}
+function chapterCount(book){return Math.max(0,...chapterNumbers(book))}
+function getChapterData(book,number){const chapters=bible.get(book)?.chapters||[];return chapters.find((c,i)=>(c.chapter||i+1)===number)||null}
 function renderChapter(){
  const data=bible.get(currentBook); if(!data)return;
- const chapters=data.chapters||[]; currentChapter=Math.min(Math.max(1,currentChapter),chapters.length||1);
- $("chapterSelect").innerHTML=chapters.map((_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join("");
+ const chapters=data.chapters||[]; const numbers=chapterNumbers(currentBook); if(!numbers.length)return;
+ if(!numbers.includes(currentChapter))currentChapter=numbers[0];
+ $("chapterSelect").innerHTML=numbers.map(n=>'<option value="'+n+'">'+n+'</option>').join("");
  $("chapterSelect").value=currentChapter; $("bookSelect").value=currentBook;
  $("reference").textContent=currentBook+" "+currentChapter;
- const verses=chapters[currentChapter-1]?.verses||[];
+ const verses=getChapterData(currentBook,currentChapter)?.verses||[];
  $("chapterText").innerHTML="";
  verses.forEach((v,i)=>{
   const p=document.createElement("p");p.className="verse-line";
@@ -51,10 +92,10 @@ function renderChapter(){
  $("nextBtn").disabled=currentBook==="Revelation"&&currentChapter===chapterCount(currentBook);
 }
 function moveChapter(delta){
- let index=BOOKS.findIndex(x=>x[0]===currentBook),next=currentChapter+delta;
- if(next<1&&index>0){currentBook=BOOKS[index-1][0];currentChapter=chapterCount(currentBook);}
- else if(next>chapterCount(currentBook)&&index<BOOKS.length-1){currentBook=BOOKS[index+1][0];currentChapter=1;}
- else currentChapter=next;
+ let index=BOOKS.findIndex(x=>x[0]===currentBook),numbers=chapterNumbers(currentBook),at=numbers.indexOf(currentChapter),next=numbers[at+delta];
+ if(next===undefined&&delta<0&&index>0){currentBook=BOOKS[index-1][0];const previous=chapterNumbers(currentBook);if(previous.length)currentChapter=previous[previous.length-1];}
+ else if(next===undefined&&delta>0&&index<BOOKS.length-1){currentBook=BOOKS[index+1][0];const following=chapterNumbers(currentBook);if(following.length)currentChapter=following[0];}
+ else if(next!==undefined)currentChapter=next;
  renderChapter();
 }
 function spokenNumber(value){
@@ -167,6 +208,7 @@ function openBook(name){
   currentBook=name;currentChapter=1;currentVerse=null;
   showPage("readerPage");
   if(bible.has(name))renderChapter();
+  else setStatus(name+" is still loading. Please wait a moment and try again.");
 }
 $("openBibleBtn").onclick=()=>showPage("contentsPage");
 // Make the entire cover respond to taps on mobile, not only the invisible overlay.
