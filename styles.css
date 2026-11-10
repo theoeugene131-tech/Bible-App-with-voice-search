@@ -42,3 +42,16 @@
 .bookmarks-panel summary{font-weight:700;cursor:pointer}.bookmark-list{padding-top:12px}.bookmark-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding:9px 0}.bookmark-row button{border:0;background:none;color:#76591f;font-weight:700;cursor:pointer}.bookmark-row .remove-bookmark{color:#858b96;font-size:12px}
 footer{text-align:center;padding:16px 20px 24px;color:#777;font-size:11px;line-height:1.5;max-width:850px;margin:auto}
 @media(max-width:520px){.cover-frame{min-height:88vh}.inside-content,.reader-content{padding:18px 12px 25px}.contents-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.voice-panel,.panel,.audio-panel{padding:16px}.search-row{gap:6px}.search-row button{padding:11px 13px}.selectors{flex-wrap:wrap}.scripture{font-size:18px}.audio-actions button,.playback-actions button{flex:1}}
+
+/* Home-page voice search and sermon notes */
+.home-tools{display:grid;grid-template-columns:1fr;gap:14px;margin:22px 0 26px}
+.home-tool-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 7px 24px #17213b09}
+.home-tool-card h2{font:25px Georgia,serif;color:var(--navy);margin:2px 0 8px}
+.home-tool-card>p:not(.eyebrow){font:14px/1.55 Georgia,serif;color:#626879;margin:0 0 13px}
+.home-mic{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:15px;border:0;border-radius:11px;background:var(--navy);color:#fff;font-size:17px;font-weight:800;cursor:pointer}
+.home-mic span{font-size:15px}
+.home-status{font-size:12px;color:#777;margin:10px 0 0}
+.notes-card textarea{width:100%;min-height:160px;resize:vertical;border:1px solid #ddd6c9;border-radius:10px;padding:12px;font:15px/1.6 Georgia,serif;color:var(--ink);background:#fffdf9}
+.notes-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:9px}
+.notes-actions .text-action{margin:0}
+@media(min-width:680px){.home-tools{grid-template-columns:1fr 1fr}}
