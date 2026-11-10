@@ -23,6 +23,7 @@
       <p class="eyebrow">WELCOME</p>
       <h1 id="contentsTitle">The Word of God</h1>
       <p class="intro-copy">Read the King James Version, find passages by speaking or typing, and listen to Scripture with a female or male reading voice. Choose any book below to begin.</p>
+      <p id="contentsBibleStatus" class="home-status" role="status" aria-live="polite">Preparing the King James Bible…</p>
       <section class="home-tools" aria-label="Search and sermon notes">
         <div class="home-tool-card home-search-card">
           <p class="eyebrow">SEARCH WITHOUT OPENING A BOOK</p>
@@ -67,7 +68,7 @@
         <div id="results" class="results" aria-live="polite"></div>
       </section>
 
-      <section class="panel reader-panel" aria-labelledby="readerTitle">
+      <section class="panel reader-panel" aria-label="Bible reader">
         <div class="section-heading"><div><p class="eyebrow">SCRIPTURE READER</p><h2 id="reference">Genesis 1</h2></div><button id="bookmarkBtn" class="bookmark" type="button" aria-label="Bookmark passage">♡</button></div>
         <div class="selectors">
           <label>Book<select id="bookSelect" aria-label="Choose Bible book"></select></label>
