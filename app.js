@@ -57,13 +57,28 @@ function moveChapter(delta){
  else currentChapter=next;
  renderChapter();
 }
+function spokenNumber(value){
+ const small={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+ const words=String(value).toLowerCase().replace(/-/g," ").trim().split(/\s+/);
+ if(/^\d+$/.test(value))return Number(value);
+ let total=0,part=0;
+ for(const w of words){if(small[w]!==undefined)part+=small[w];else if(w==="and")continue;else return null;}
+ total+=part;return total||null;
+}
 function findReference(q){
- const cleaned=q.replace(/^(open|read|show|find|go to)\s+/i,"").trim();
- const match=cleaned.match(/^(.+?)\s+(\d+)(?::(\d+)(?:\s*[-–]\s*(\d+))?)?$/i);
+ let cleaned=String(q).toLowerCase().replace(/[?!.,]/g," ").replace(/\b(first|1st)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,"1 ")
+ .replace(/\b(second|2nd)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,"2 ")
+ .replace(/\b(third|3rd)\s+(?=john)/g,"3 ").trim()
+ .replace(/^(please\s+)?(open|read|show|find|go to|turn to)\s+/,"")
+ .replace(/\b(chapter)\b/g," ").replace(/\b(verse|verses)\b/g,":")
+ .replace(/\b(and)\b/g," ").replace(/\s+/g," ").trim();
+ const match=cleaned.match(/^(.+?)\s+(\d+|[a-z]+(?:[ -][a-z]+)*)\s*(?::\s*(\d+|[a-z]+(?:[ -][a-z]+)*))?(?:\s*[-–]\s*(\d+|[a-z]+(?:[ -][a-z]+)*))?$/i);
  if(!match)return null;
  const book=BOOKS.find(([n])=>normal(n)===normal(match[1]))||BOOKS.find(([n])=>normal(n).startsWith(normal(match[1])));
  if(!book)return null;
- return {book:book[0],chapter:Number(match[2]),verse:match[3]?Number(match[3]):null,end:match[4]?Number(match[4]):null};
+ const chapter=spokenNumber(match[2]),verse=match[3]?spokenNumber(match[3]):null,end=match[4]?spokenNumber(match[4]):null;
+ if(!chapter)return null;
+ return {book:book[0],chapter,verse,end};
 }
 function showSearchResults(items,title){
  const wrap=$("results");wrap.innerHTML="";
