@@ -91,4 +91,5 @@
 </main>
 <footer>KJV Bible text · Internet connection required to load Scripture. Voice features depend on browser and device support.</footer>
 <script src="app.js"></script>
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(err => console.warn("Offline app setup unavailable:", err))); }</script>
 </body></html>
