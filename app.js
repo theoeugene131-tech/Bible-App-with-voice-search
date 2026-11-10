@@ -118,7 +118,6 @@ document.querySelectorAll("[data-query]").forEach(b=>b.onclick=()=>{$("query").v
 $("bookSelect").onchange=()=>{currentBook=$("bookSelect").value;currentChapter=1;renderChapter()};
 $("chapterSelect").onchange=()=>{currentChapter=Number($("chapterSelect").value);renderChapter()};
 $("prevBtn").onclick=()=>moveChapter(-1);$("nextBtn").onclick=()=>moveChapter(1);
-$("homeBtn").onclick=e=>{e.preventDefault();currentBook="Genesis";currentChapter=1;renderChapter();window.scrollTo({top:0,behavior:"smooth"})};
 $("micBtn").onclick=()=>{
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){setStatus("Voice search is not supported in this browser. Use Chrome on Android or type your search.");return;}
