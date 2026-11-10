@@ -169,6 +169,8 @@ function openBook(name){
   if(bible.has(name))renderChapter();
 }
 $("openBibleBtn").onclick=()=>showPage("contentsPage");
+// Make the entire cover respond to taps on mobile, not only the invisible overlay.
+$("coverPage").addEventListener("click",event=>{if(event.target.closest("#openBibleBtn")||event.target.closest(".cover-frame"))showPage("contentsPage");});
 $("backCoverBtn").onclick=()=>showPage("coverPage");
 $("startReadingBtn").onclick=()=>openBook("Genesis");
 $("contentsBackBtn").onclick=()=>showPage("contentsPage");
