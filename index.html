@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b35"><meta name="description" content="Search and listen to the King James Bible using your voice.">
+<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
+<title>Bible App with Voice Search</title>
+</head>
+<body>
+<header><div class="brand">✦ <span>Bible App</span></div><small>WITH VOICE SEARCH</small></header>
+<main>
+<section class="hero"><p class="eyebrow">THE WORD, WITH YOU</p><h1>Find a verse.<br><em>Hear its message.</em></h1><p>Search the King James Bible by speaking, typing a reference, or describing what you remember.</p></section>
+<section class="search panel">
+<label for="query">What would you like to find?</label>
+<div class="searchrow"><input id="query" placeholder='Try “John 3:16” or “God gives me hope”'><button id="searchBtn">Search</button></div>
+<button id="micBtn" class="mic">🎙 Search with my voice</button><p id="status" role="status">Ready when you are.</p>
+<div class="topics"><span>Explore:</span><button data-topic="hope">Hope</button><button data-topic="faith">Faith</button><button data-topic="peace">Peace</button><button data-topic="love">Love</button><button data-topic="fear">Fear</button></div>
+</section>
+<section class="reader panel"><div class="readerhead"><div><p class="eyebrow">YOUR SCRIPTURE</p><h2 id="reference">Welcome</h2></div><button id="saveBtn" class="iconbtn" title="Save verse">♡</button></div>
+<p id="verse" class="verse">“Thy word is a lamp unto my feet, and a light unto my path.”</p><p id="translation" class="muted">Psalm 119:105 · King James Version</p>
+<div class="controls"><button id="readBtn">▶ Read aloud</button><label>Voice <select id="voice"><option value="female">Female</option><option value="male">Male</option></select></label><button id="stopBtn" class="secondary">Stop</button></div>
+</section>
+<section class="panel saved"><h2>Saved verses</h2><div id="savedList" class="muted">Your saved verses will appear here.</div></section>
+</main><footer>King James Version · Scripture lookup requires an internet connection</footer>
+<script src="app.js"></script>
+</body></html>
