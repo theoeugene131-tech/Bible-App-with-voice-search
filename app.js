@@ -186,19 +186,51 @@ function getVoice(kind){
  const voices=speechSynthesis.getVoices();const female=/female|woman|samantha|zira|karen|victoria|susan|aria/i;const male=/male|man|david|daniel|george|mark|james|guy/i;
  return voices.find(v=>(kind==="female"?female:male).test(v.name))||voices.find(v=>v.lang.startsWith("en"))||null;
 }
+let speechRunId=0;
 function speak(text){
- if(!("speechSynthesis" in window)){setStatus("Audio reading is not supported on this device.");return;}
+ if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){
+  setStatus("Audio reading is not supported on this device. Try Chrome on Android.");return;
+ }
  const synth=window.speechSynthesis;
+ const runId=++speechRunId;
  synth.cancel();
- const utterance=new SpeechSynthesisUtterance(text);
- const applyVoice=()=>{const selected=getVoice($("voiceSelect").value);if(selected)utterance.voice=selected;};
- applyVoice();utterance.rate=.92;
- utterance.onstart=()=>setStatus("Reading aloud…");
- utterance.onend=()=>setStatus("Finished reading.");
- utterance.onerror=()=>setStatus("Audio reading stopped. Try again or choose another voice.");
- synth.speak(utterance);
- // Some mobile browsers populate their voice list after the page loads.
- if(!synth.getVoices().length){synth.onvoiceschanged=()=>{applyVoice();synth.onvoiceschanged=null;};}
+ // Short chunks prevent Android browsers from cutting off long Bible chapters.
+ const sentences=String(text).match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[String(text)];
+ const chunks=[];let part="";
+ sentences.forEach(sentence=>{
+  const words=sentence.trim().split(/\s+/);
+  words.forEach(word=>{
+   if((part+" "+word).trim().length>180&&part){chunks.push(part.trim());part=word;}
+   else part=(part+" "+word).trim();
+  });
+  if(part.length>0){chunks.push(part.trim());part="";}
+ });
+ let index=0;
+ const selectedVoice=()=>{
+  const voices=synth.getVoices();
+  const kind=$("voiceSelect").value;
+  const pattern=kind==="female"?/female|woman|samantha|zira|karen|victoria|susan|aria|google.*uk.*english.*female/i:/male|man|david|daniel|george|mark|james|guy|google.*uk.*english.*male/i;
+  return voices.find(v=>pattern.test(v.name))||voices.find(v=>/^en/i.test(v.lang))||null;
+ };
+ const playNext=()=>{
+  if(runId!==speechRunId||index>=chunks.length){
+   if(runId===speechRunId)setStatus("Finished reading.");
+   return;
+  }
+  const utterance=new SpeechSynthesisUtterance(chunks[index++]);
+  const voice=selectedVoice();if(voice)utterance.voice=voice;
+  utterance.rate=.9;utterance.pitch=1;
+  utterance.onstart=()=>{if(runId===speechRunId)setStatus("Reading aloud… ("+index+" of "+chunks.length+")");};
+  utterance.onend=()=>{if(runId===speechRunId)playNext();};
+  utterance.onerror=(event)=>{
+   if(runId!==speechRunId||event.error==="canceled"||event.error==="interrupted")return;
+   setStatus("Audio reading stopped. Tap Read chapter to try again, or choose another voice.");
+  };
+  synth.speak(utterance);
+ };
+ if(!chunks.length){setStatus("There is no text available to read.");return;}
+ // Start after the current browser task; this improves reliability on mobile.
+ window.setTimeout(()=>{if(runId===speechRunId)playNext();},150);
 }
 $("readBtn").onclick=()=>{const verses=getChapterData(currentBook,currentChapter)?.verses||[];if(!verses.length){setStatus("This chapter is not loaded yet. Please wait and try again.");return;}speak(currentBook+" chapter "+currentChapter+". "+verses.map((v,i)=>(v.number||i+1)+". "+(v.text||v)).join(" "))};
 $("readVerseBtn").onclick=()=>{if(!currentVerse){setStatus("Tap a verse in the Bible text first, then choose Read selected verse.");return;}speak(currentVerse.reference+". "+currentVerse.text)};
