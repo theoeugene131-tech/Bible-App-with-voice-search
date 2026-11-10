@@ -174,5 +174,47 @@ $("coverPage").addEventListener("click",event=>{if(event.target.closest("#openBi
 $("backCoverBtn").onclick=()=>showPage("coverPage");
 $("startReadingBtn").onclick=()=>openBook("Genesis");
 $("contentsBackBtn").onclick=()=>showPage("contentsPage");
+// Home-page voice search works before the user opens any Bible book.
+function runHomeSearch(query){
+  if(!query.trim()){$("homeSearchStatus").textContent="Please speak or type a Bible reference or search topic.";return;}
+  $("query").value=query;
+  search(query);
+  showPage("readerPage");
+}
+$("homeSearchBtn").onclick=()=>runHomeSearch($("homeQuery").value);
+$("homeQuery").addEventListener("keydown",e=>{if(e.key==="Enter")runHomeSearch($("homeQuery").value)});
+$("homeMicBtn").onclick=()=>{
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$("homeSearchStatus").textContent="Voice search is not supported here. Please type your search or use Chrome.";return;}
+  const rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.maxAlternatives=1;
+  $("homeSearchStatus").textContent="Listening… say a Bible reference or topic.";
+  rec.onresult=e=>{const spoken=e.results[0][0].transcript;$("homeQuery").value=spoken;runHomeSearch(spoken);};
+  rec.onerror=()=>{$("homeSearchStatus").textContent="Microphone unavailable. Allow microphone access in your browser."};
+  rec.start();
+};
+// Sermon notes are stored locally on this device.
+const notesKey="voiceBibleSermonNotes";
+$("sermonNotes").value=localStorage.getItem(notesKey)||"";
+$("sermonNotes").addEventListener("input",()=>{
+  localStorage.setItem(notesKey,$("sermonNotes").value);
+  $("notesStatus").textContent="Saved on this device.";
+});
+$("dictateNotesBtn").onclick=()=>{
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$("notesStatus").textContent="Voice dictation is not supported here. Please type your notes or use Chrome.";return;}
+  const rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.maxAlternatives=1;
+  $("notesStatus").textContent="Listening… dictate your sermon notes.";
+  rec.onresult=e=>{
+    const spoken=e.results[0][0].transcript;
+    const area=$("sermonNotes");area.value+=(area.value?"\n":"")+spoken;
+    localStorage.setItem(notesKey,area.value);$("notesStatus").textContent="Dictation saved on this device.";
+  };
+  rec.onerror=()=>{$("notesStatus").textContent="Microphone unavailable. Allow microphone access in your browser."};
+  rec.start();
+};
+$("clearNotesBtn").onclick=()=>{
+  $("sermonNotes").value="";localStorage.removeItem(notesKey);
+  $("notesStatus").textContent="Notes cleared from this device.";
+};
 buildContents();
 loadBible();
