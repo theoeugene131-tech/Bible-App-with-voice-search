@@ -78,4 +78,4 @@ footer{text-align:center;padding:16px 20px 24px;color:#777;font-size:11px;line-h
 .projection-screen.projection-light{background:#f8f2e5;color:#1b2740;border-color:#a77c2c}
 .projection-screen.projection-light h2{color:#77551b}.projection-screen.projection-light .projection-brand,.projection-screen.projection-light .projection-footer,.projection-screen.projection-light .projection-verses strong{color:#8a6424}
 .projection-screen:fullscreen{width:100vw;height:100vh;min-height:100vh;border:0;border-radius:0;padding:6vw;overflow:auto}
-@media(max-width:760px){.church-workspace{grid-template-columns:1fr;padding:12px}.projection-screen{min-height:48vh}.church-entry{align-items:stretch;flex-direction:column}.church-entry button{width:100%}.projection-verses{font-size:24px!important}}
+@media(max-width:760px){.church-workspace{grid-template-columns:1fr;padding:12px}.projection-screen{min-height:48vh}.church-entry{align-items:stretch;flex-direction:column}.church-entry button{width:100%}.projection-verses{font-size:24px}}
