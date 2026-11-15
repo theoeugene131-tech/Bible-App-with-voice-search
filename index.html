@@ -104,6 +104,27 @@
         <div class="chapter-tools"><button id="prevBtn" class="light-button" type="button">← Previous</button><button id="nextBtn" class="light-button" type="button">Next →</button></div>
         <div class="verse-actions" aria-label="Copy or share selected verse"><span id="verseActionHint">Tap a verse, then copy or share it.</span><button id="copyVerseBtn" class="light-button" type="button" disabled>▣ Copy verse</button><button id="shareVerseBtn" class="primary-action" type="button" disabled>↗ Share verse</button></div>
         <div id="chapterText" class="scripture"><p>Preparing your Bible…</p></div>
+        <section class="passage-explainer" aria-labelledby="explainTitle">
+          <p class="eyebrow">AI BIBLE STUDY ASSISTANT</p>
+          <h2 id="explainTitle">Understand this passage</h2>
+          <p>Ask for a clear explanation of the current chapter or the verse you select.</p>
+          <label class="sermon-field">Explanation style
+            <select id="explanationStyle">
+              <option value="Simple explanation">Simple explanation</option>
+              <option value="Verse-by-verse study">Verse-by-verse study</option>
+              <option value="Historical and cultural background">Historical and cultural background</option>
+              <option value="Key lessons and applications">Key lessons and practical applications</option>
+              <option value="Cross-references">Related Bible passages and cross-references</option>
+              <option value="Detailed Bible study">Detailed Bible study (all of the above)</option>
+            </select>
+          </label>
+          <div class="explain-actions">
+            <button id="explainChapterBtn" class="primary-action" type="button">Explain whole chapter</button>
+            <button id="explainVerseBtn" class="light-button" type="button" disabled>Explain selected verse</button>
+          </div>
+          <p id="explanationStatus" class="home-status" role="status" aria-live="polite">Select a verse or explain the chapter. Internet access and the Gemini API key are required.</p>
+          <div id="explanationOutput" class="explanation-output" aria-live="polite"></div>
+        </section>
       </section>
 
       <details class="panel bookmarks-panel"><summary>My bookmarks</summary><div id="bookmarks" class="bookmark-list">No bookmarks saved yet.</div></details>
