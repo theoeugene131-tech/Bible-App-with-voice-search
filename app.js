@@ -447,6 +447,70 @@ $("clearNotesBtn").onclick=()=>{
   $("sermonNotes").value="";localStorage.removeItem(notesKey);
   $("notesStatus").textContent="Notes cleared from this device.";
 };
+
+/* AI sermon writer: generated sermons are editable and saved locally. */
+const savedSermonsKey="voiceBibleSavedAiSermons";
+let savedAiSermons=[];
+try{savedAiSermons=JSON.parse(localStorage.getItem(savedSermonsKey)||"[]");if(!Array.isArray(savedAiSermons))savedAiSermons=[];}catch(error){savedAiSermons=[];}
+function renderSavedAiSermons(){
+ const box=$("savedAiSermons");if(!box)return;box.innerHTML="";
+ if(!savedAiSermons.length){box.textContent="No AI sermons saved on this device yet.";return;}
+ const heading=document.createElement("p");heading.className="saved-sermons-heading";heading.textContent="SAVED SERMONS";box.append(heading);
+ savedAiSermons.forEach((item,index)=>{
+  const row=document.createElement("div");row.className="saved-sermon-row";
+  const open=document.createElement("button");open.type="button";open.className="saved-sermon-open";open.textContent=item.title||"Untitled sermon";open.onclick=()=>{$("aiSermonTopic").value=item.topic||"";$("aiSermonPassage").value=item.passage||"";$("aiSermonOutput").value=item.content||"";$("aiSermonStatus").textContent="Loaded saved sermon. You can edit it.";};
+  const remove=document.createElement("button");remove.type="button";remove.className="saved-sermon-delete";remove.textContent="Delete";remove.onclick=()=>{savedAiSermons.splice(index,1);localStorage.setItem(savedSermonsKey,JSON.stringify(savedAiSermons));renderSavedAiSermons();};
+  row.append(open,remove);box.append(row);
+ });
+}
+function currentAiSermonTitle(){
+ return $("aiSermonTopic").value.trim()||$("aiSermonPassage").value.trim()||"Untitled sermon";
+}
+$("generateSermonBtn").onclick=async()=>{
+ const topic=$("aiSermonTopic").value.trim(),passage=$("aiSermonPassage").value.trim();
+ if(!topic&&!passage){$("aiSermonStatus").textContent="Enter a sermon topic or a Bible passage first.";return;}
+ const button=$("generateSermonBtn");button.disabled=true;button.textContent="Preparing your sermon…";
+ $("aiSermonStatus").textContent="The AI is preparing a detailed sermon. This may take a little while.";
+ try{
+  const response=await fetch("/api/sermon",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+   topic,passage,style:$("aiSermonStyle").value,audience:$("aiSermonAudience").value,length:$("aiSermonLength").value
+  })});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"Sermon generation failed. Please try again.");
+  if(!data.sermon)throw new Error("The AI returned an empty sermon. Please try again.");
+  $("aiSermonOutput").value=data.sermon;
+  $("aiSermonStatus").textContent="Sermon generated. Read it carefully, check the Bible references, and edit it as needed.";
+ }catch(error){
+  $("aiSermonStatus").textContent=error.message||"Could not generate a sermon. Check your connection and try again.";
+ }finally{button.disabled=false;button.textContent="✦ Generate detailed sermon";}
+};
+$("saveAiSermonBtn").onclick=()=>{
+ const content=$("aiSermonOutput").value.trim();if(!content){$("aiSermonStatus").textContent="Generate or write a sermon before saving.";return;}
+ const item={title:currentAiSermonTitle(),topic:$("aiSermonTopic").value.trim(),passage:$("aiSermonPassage").value.trim(),content,savedAt:new Date().toISOString()};
+ savedAiSermons.unshift(item);savedAiSermons=savedAiSermons.slice(0,30);
+ try{localStorage.setItem(savedSermonsKey,JSON.stringify(savedAiSermons));$("aiSermonStatus").textContent="Sermon saved on this device.";}catch(error){$("aiSermonStatus").textContent="Device storage is full. Remove older saved sermons and try again.";}
+ renderSavedAiSermons();
+};
+$("addAiSermonNotesBtn").onclick=()=>{
+ const content=$("aiSermonOutput").value.trim();if(!content){$("aiSermonStatus").textContent="Generate or write a sermon first.";return;}
+ const area=$("sermonNotes");area.value+=(area.value?"\n\n":"")+content;localStorage.setItem(notesKey,area.value);
+ $("notesStatus").textContent="AI sermon added to your sermon notes and saved on this device.";
+ $("aiSermonStatus").textContent="Added to Sermon Notes below. You can edit it there too.";
+};
+$("shareAiSermonBtn").onclick=async()=>{
+ const content=$("aiSermonOutput").value.trim();if(!content){$("aiSermonStatus").textContent="Generate or write a sermon before sharing.";return;}
+ const title=currentAiSermonTitle();
+ try{
+  if(navigator.share){await navigator.share({title,text:title+"\n\n"+content});$("aiSermonStatus").textContent="Share options opened.";}
+  else if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(title+"\n\n"+content);$("aiSermonStatus").textContent="Sermon copied. Paste it into WhatsApp or another app.";}
+  else{
+   const blob=new Blob([title+"\n\n"+content],{type:"text/plain;charset=utf-8"});const url=URL.createObjectURL(blob);
+   const link=document.createElement("a");link.href=url;link.download="sermon.txt";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);
+   $("aiSermonStatus").textContent="Sermon downloaded as a text file.";
+  }
+ }catch(error){if(error&&error.name==="AbortError")$("aiSermonStatus").textContent="Sharing cancelled.";else $("aiSermonStatus").textContent="Could not share the sermon. Try saving it first.";}
+};
+renderSavedAiSermons();
 buildContents();
 loadBible();
 
