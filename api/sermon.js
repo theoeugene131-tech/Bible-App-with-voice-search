@@ -5,6 +5,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
+  // Temporarily suspended; original implementation is retained below for later reactivation.
+  return res.status(503).json({ error: "AI Sermon Writer is temporarily unavailable." });
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: "Sermon generation is not configured yet. Add GEMINI_API_KEY to this Vercel project's Environment Variables, then redeploy." });
