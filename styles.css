@@ -85,3 +85,20 @@ footer{text-align:center;padding:16px 20px 24px;color:#777;font-size:11px;line-h
 
 /* Church presentation passage and topic search results */
 .church-search-results{display:grid;gap:7px;margin-top:9px}.church-result{display:block;width:100%;text-align:left;background:#fbf8f1;border:1px solid var(--line);border-radius:9px;padding:10px;color:var(--ink);cursor:pointer}.church-result strong{display:block;color:#8a6424;margin-bottom:4px}.church-result span{font:14px/1.45 Georgia,serif}
+
+
+/* AI Sermon Writer */
+.ai-sermon-card{border-color:#ddc99d;background:linear-gradient(180deg,#fffdf8,#fff)}
+.sermon-field{display:block;margin:12px 0;font-size:12px;font-weight:700;color:#555e70}
+.sermon-field input,.sermon-field select,.sermon-field textarea{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #ddd6c9;border-radius:9px;background:#fff;color:var(--ink);font:14px/1.5 system-ui,sans-serif}
+.sermon-field textarea{min-height:300px;resize:vertical;font:15px/1.65 Georgia,serif}
+.sermon-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sermon-generate{width:100%;margin:8px 0}
+.sermon-generate:disabled{opacity:.65;cursor:wait}
+.sermon-actions button{flex:1}
+.saved-sermons{margin-top:16px;border-top:1px solid var(--line);padding-top:10px}
+.saved-sermons-heading{font-size:10px;letter-spacing:.14em;font-weight:800;color:#98732e}
+.saved-sermon-row{display:flex;align-items:center;gap:8px;border-bottom:1px solid #eee8dc;padding:8px 0}
+.saved-sermon-open{flex:1;text-align:left;border:0;background:none;color:var(--navy);font-weight:700;padding:7px;cursor:pointer}
+.saved-sermon-delete{border:0;background:#f4eee4;color:#795b2a;border-radius:7px;padding:7px 10px;cursor:pointer}
+@media(max-width:520px){.sermon-options{grid-template-columns:1fr}.sermon-actions button{flex:1 1 100%}}
