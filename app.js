@@ -128,20 +128,56 @@ function spokenNumber(value){
  for(const w of words){if(small[w]!==undefined)part+=small[w];else if(w==="and")continue;else return null;}
  total+=part;return total||null;
 }
+const BOOK_ALIASES={
+ "genesis":["gen","ge"],"exodus":["exod","exo","ex"],"leviticus":["lev","le"],
+ "numbers":["num","nm"],"deuteronomy":["deut","deu","dt"],"joshua":["josh","jos"],
+ "judges":["judg","jdg","jd"],"ruth":["ru"],"1 samuel":["1 sam","1sam","1 samuel","i samuel","first samuel"],
+ "2 samuel":["2 sam","2sam","ii samuel","second samuel"],"1 kings":["1 kgs","1kgs","i kings","first kings"],
+ "2 kings":["2 kgs","2kgs","ii kings","second kings"],"1 chronicles":["1 chr","1chr","i chronicles","first chronicles"],
+ "2 chronicles":["2 chr","2chr","ii chronicles","second chronicles"],"ezra":["ezr"],"nehemiah":["neh","ne"],
+ "esther":["esth","est"],"job":["jb"],"psalms":["ps","psalm"],"proverbs":["prov","pro"],
+ "ecclesiastes":["eccl","ecc"],"song of solomon":["song","sos","song of songs"],
+ "isaiah":["isa","is"],"jeremiah":["jer","jer"],"lamentations":["lam","la"],"ezekiel":["ezek","eze"],
+ "daniel":["dan","da"],"hosea":["hos","ho"],"joel":["joe","jl"],"amos":["am"],
+ "obadiah":["obad","ob"],"jonah":["jon","jnh"],"micah":["mic","mc"],"nahum":["nah","na"],
+ "habakkuk":["hab","hb"],"zephaniah":["zeph","zep"],"haggai":["hag","hg"],"zechariah":["zech","zec"],
+ "malachi":["mal","ml"],"matthew":["matt","mat","mt","mathew"],"mark":["mrk","mk"],
+ "luke":["lk"],"john":["jhn","jn"],"acts":["act","ac"],"romans":["rom","ro"],
+ "1 corinthians":["1 cor","1cor","i corinthians","first corinthians"],
+ "2 corinthians":["2 cor","2cor","ii corinthians","second corinthians"],
+ "galatians":["gal","ga"],"ephesians":["eph","ep"],"philippians":["phil","php","pp"],
+ "colossians":["col","co"],"1 thessalonians":["1 thes","1 thess","1thess","i thessalonians","first thessalonians"],
+ "2 thessalonians":["2 thes","2 thess","2thess","ii thessalonians","second thessalonians"],
+ "1 timothy":["1 tim","1tim","i timothy","first timothy"],"2 timothy":["2 tim","2tim","ii timothy","second timothy"],
+ "titus":["tit"],"philemon":["philem","phm"],"hebrews":["heb","he"],"james":["jas","jm"],
+ "1 peter":["1 pet","1pet","i peter","first peter"],"2 peter":["2 pet","2pet","ii peter","second peter"],
+ "1 john":["1 jn","1 john","1john","i john","first john"],"2 john":["2 jn","2john","ii john","second john"],
+ "3 john":["3 jn","3john","iii john","third john"],"jude":["jud"],"revelation":["rev","re","revelations"]
+};
+function canonicalBook(input){
+ const key=normal(input);
+ for(const [name] of BOOKS){
+  if(normal(name)===key)return name;
+  if((BOOK_ALIASES[normal(name)]||[]).some(alias=>normal(alias)===key))return name;
+ }
+ return null;
+}
 function findReference(q){
- let cleaned=String(q).toLowerCase().replace(/[?!.,]/g," ").replace(/\b(first|1st)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,"1 ")
- .replace(/\b(second|2nd)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,"2 ")
- .replace(/\b(third|3rd)\s+(?=john)/g,"3 ").trim()
- .replace(/^(please\s+)?(open|read|show|find|go to|turn to)\s+/,"")
- .replace(/\b(chapter)\b/g," ").replace(/\b(verse|verses)\b/g,":")
- .replace(/\b(and)\b/g," ").replace(/\s+/g," ").trim();
- const match=cleaned.match(/^(.+?)\s+(\d+|[a-z]+(?:[ -][a-z]+)*)\s*(?::\s*(\d+|[a-z]+(?:[ -][a-z]+)*))?(?:\s*[-–]\s*(\d+|[a-z]+(?:[ -][a-z]+)*))?$/i);
+ let cleaned=String(q).toLowerCase().replace(/[?!.,]/g," ").trim()
+  .replace(/^(please\\s+)?(open|read|show|find|search|display|go to|turn to)\\s+/,"")
+  .replace(/\\b(first|1st)\\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,"1 ")
+  .replace(/\\b(second|2nd)\\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,"2 ")
+  .replace(/\\b(third|3rd)\\s+(?=john)/g,"3 ")
+  .replace(/\\b(chapter|chap|ch)\\s*/g," ")
+  .replace(/\\b(verse|verses|v|vs)\\s*/g,":")
+  .replace(/\\b(and)\\b/g," ").replace(/\\s+/g," ").trim();
+ const match=cleaned.match(/^(.+?)\\s+(\\d+|[a-z]+(?:[ -][a-z]+)*)\\s*(?::\\s*(\\d+|[a-z]+(?:[ -][a-z]+)*))?(?:\\s*[-–]\\s*(\\d+|[a-z]+(?:[ -][a-z]+)*))?$/i);
  if(!match)return null;
- const book=BOOKS.find(([n])=>normal(n)===normal(match[1]))||BOOKS.find(([n])=>normal(n).startsWith(normal(match[1])));
+ const book=canonicalBook(match[1]);
  if(!book)return null;
  const chapter=spokenNumber(match[2]),verse=match[3]?spokenNumber(match[3]):null,end=match[4]?spokenNumber(match[4]):null;
  if(!chapter)return null;
- return {book:book[0],chapter,verse,end};
+ return {book,chapter,verse,end};
 }
 function showSearchResults(items,title){
  const wrap=$("results");wrap.innerHTML="";
