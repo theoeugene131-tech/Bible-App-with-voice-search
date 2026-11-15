@@ -86,6 +86,9 @@ function chapterNumbers(book){return (bible.get(book)?.chapters||[]).map((c,i)=>
 function chapterCount(book){return Math.max(0,...chapterNumbers(book))}
 function getChapterData(book,number){const chapters=bible.get(book)?.chapters||[];return chapters.find((c,i)=>(c.chapter||i+1)===number)||null}
 function updateVerseActions(){
+ const explainVerseButton=$("explainVerseBtn");
+ if(explainVerseButton) explainVerseButton.disabled=!currentVerse;
+
  const ready=!!currentVerse;
  $("copyVerseBtn").disabled=!ready;
  $("shareVerseBtn").disabled=!ready;
@@ -336,6 +339,39 @@ $("stopBtn").onclick=()=>{
  speechRunId++;speechPaused=false;speechChunks=[];speechChunkIndex=0;
  setStatus("Voice reading stopped.");
 };
+
+/* AI passage explanations use the actual KJV text loaded in the reader. */
+async function requestPassageExplanation(scope){
+ const selected=scope==="verse"&&currentVerse;
+ const verses=getChapterData(currentBook,currentChapter)?.verses||[];
+ if(!verses.length){$("explanationStatus").textContent="This chapter is not loaded yet. Please connect to the internet and try again.";return;}
+ const reference=selected?currentVerse.reference:currentBook+" "+currentChapter;
+ const passageText=selected?currentVerse.text:verses.map((v,i)=>(v.number||i+1)+". "+(v.text||v)).join("\n");
+ const buttons=[$("explainChapterBtn"),$("explainVerseBtn")];
+ buttons.forEach(button=>button.disabled=true);
+ const active=scope==="verse"?$("explainVerseBtn"):$("explainChapterBtn");
+ const original=active.textContent;active.textContent="Preparing explanation…";
+ $("explanationStatus").textContent="The Bible study assistant is preparing your explanation. Please wait.";
+ $("explanationOutput").textContent="";
+ try{
+  const response=await fetch("/api/explain",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+   reference,passage:passageText,style:$("explanationStyle").value
+  })});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"The explanation could not be generated. Please try again.");
+  if(!data.explanation)throw new Error("The AI returned an empty explanation. Please try again.");
+  $("explanationOutput").textContent=data.explanation;
+  $("explanationStatus").textContent="Explanation ready for "+reference+". Compare it with Scripture and verify every cross-reference.";
+ }catch(error){
+  $("explanationStatus").textContent=error.message||"Could not generate an explanation. Check your connection and try again.";
+ }finally{
+  buttons.forEach(button=>button.disabled=button.id==="explainVerseBtn"&&!currentVerse);
+  active.textContent=original;
+ }
+}
+$("explainChapterBtn").onclick=()=>requestPassageExplanation("chapter");
+$("explainVerseBtn").onclick=()=>requestPassageExplanation("verse");
+
 function renderBookmarks(){
  const box=$("bookmarks");box.innerHTML="";
  if(!bookmarks.length){box.textContent="No bookmarks saved yet.";return;}
