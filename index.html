@@ -41,6 +41,24 @@
           <div class="notes-actions"><button id="dictateNotesBtn" class="light-button" type="button">🎙 Dictate notes</button><button id="shareNotesBtn" class="primary-action" type="button">↗ Share notes</button><button id="clearNotesBtn" class="text-action" type="button">Clear notes</button></div>
           <p id="notesStatus" class="home-status" role="status" aria-live="polite">Notes save automatically on this device.</p>
         </div>
+
+        <div class="home-tool-card ai-sermon-card">
+          <p class="eyebrow">AI-POWERED SERMON PREPARATION</p>
+          <h2>AI Sermon Writer</h2>
+          <p>Prepare a detailed, Scripture-centred sermon from a topic or Bible passage.</p>
+          <label class="sermon-field">Sermon topic<input id="aiSermonTopic" maxlength="180" placeholder="e.g. The power of forgiveness"></label>
+          <label class="sermon-field">Main Bible passage<input id="aiSermonPassage" maxlength="100" placeholder="e.g. Matthew 6:14–15"></label>
+          <div class="sermon-options">
+            <label class="sermon-field">Sermon type<select id="aiSermonStyle"><option>Expository</option><option>Topical</option><option>Evangelistic</option><option>Teaching</option><option>Devotional</option><option>Bible study</option></select></label>
+            <label class="sermon-field">Audience<select id="aiSermonAudience"><option>General congregation</option><option>Youth</option><option>Children</option><option>New believers</option><option>Church leaders</option></select></label>
+          </div>
+          <label class="sermon-field">Approximate delivery time<select id="aiSermonLength"><option value="10–15 minutes">10–15 minutes</option><option value="20–25 minutes" selected>20–25 minutes</option><option value="30–40 minutes">30–40 minutes</option><option value="45–60 minutes">45–60 minutes</option></select></label>
+          <button id="generateSermonBtn" class="primary-action sermon-generate" type="button">✦ Generate detailed sermon</button>
+          <p id="aiSermonStatus" class="home-status" role="status" aria-live="polite">An internet connection and an AI API key are required to generate sermons.</p>
+          <label class="sermon-field">Generated sermon (you can edit this text)<textarea id="aiSermonOutput" rows="16" placeholder="Your completed sermon will appear here…"></textarea></label>
+          <div class="notes-actions sermon-actions"><button id="saveAiSermonBtn" class="light-button" type="button">Save sermon</button><button id="addAiSermonNotesBtn" class="light-button" type="button">Add to sermon notes</button><button id="shareAiSermonBtn" class="primary-action" type="button">↗ Share sermon</button></div>
+          <div id="savedAiSermons" class="saved-sermons" aria-live="polite"></div>
+        </div>
       </section>
 <section class="church-entry"><div><p class="eyebrow">FOR CHURCH SERVICES</p><h2>Church Presentation</h2><p>Display Bible passages clearly on a church screen using your phone or laptop.</p></div><button id="churchModeBtn" class="primary-action" type="button">Open presentation mode →</button></section>
             <div class="contents-heading"><h2>CONTENTS</h2><span>66 BOOKS</span></div>
