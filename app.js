@@ -439,7 +439,22 @@ function renderPresentation(){
 }
 function displayChurchReference(value){
  const ref=findReference(value);
- if(!ref){$("churchStatus").textContent="I could not understand that reference. Try a format such as John 3:16.";return;}
+ if(!ref){
+  const hits=keywordSearch(value);
+  const list=$("churchSearchResults");list.innerHTML="";
+  if(!hits.length){$("churchStatus").textContent="No matching verses found. Try a reference like John 3:16 or another search word.";return;}
+  $("churchStatus").textContent="Found "+hits.length+" matching verses. Tap one to display it.";
+  hits.slice(0,15).forEach(item=>{
+   const button=document.createElement("button");button.type="button";button.className="church-result";
+   const heading=document.createElement("strong");heading.textContent=item.book+" "+item.chapter+":"+item.verse;
+   const verse=document.createElement("span");verse.textContent=item.text;
+   button.append(heading,verse);
+   button.onclick=()=>{currentBook=item.book;currentChapter=item.chapter;renderPresentation();const line=$("projectionVerses").querySelectorAll("p")[item.verse-1];if(line){$("projectionVerses").innerHTML="";const selected=document.createElement("p");const number=document.createElement("strong");number.textContent=item.verse+". ";const words=document.createElement("span");words.textContent=item.text;selected.append(number,words);$("projectionVerses").append(selected);$("projectionReference").textContent=item.book+" "+item.chapter+":"+item.verse;}$("churchReference").value=item.book+" "+item.chapter+":"+item.verse;list.innerHTML="";$("churchStatus").textContent="Displaying "+item.book+" "+item.chapter+":"+item.verse+".";};
+   list.append(button);
+  });
+  return;
+ }
+ $("churchSearchResults").innerHTML="";
  if(!bible.has(ref.book)){ $("churchStatus").textContent=ref.book+" is still downloading. Please try again shortly.";return;}
  const max=chapterCount(ref.book);
  if(ref.chapter<1||ref.chapter>max){$("churchStatus").textContent="That chapter does not exist.";return;}
